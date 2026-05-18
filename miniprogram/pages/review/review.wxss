@@ -1,0 +1,9 @@
+.label { font-weight: bold; display: block; margin: 20rpx 0; }
+.stars { font-size: 56rpx; color: #ddd; }
+.star.active { color: #ff9900; }
+textarea { width: 100%; height: 200rpx; background: #f5f7fa; padding: 20rpx; border-radius: 12rpx; box-sizing: border-box; }
+.images { display: flex; flex-wrap: wrap; gap: 16rpx; margin: 16rpx 0; }
+.thumb { width: 160rpx; height: 160rpx; border-radius: 8rpx; }
+.add-img { width: 160rpx; height: 160rpx; background: #f5f7fa; display: flex; align-items: center; justify-content: center; font-size: 48rpx; color: #999; border-radius: 8rpx; }
+.anon { margin: 24rpx 0; display: flex; align-items: center; gap: 16rpx; }
+.btn-primary { margin-top: 40rpx; }

@@ -1,0 +1,28 @@
+spring:
+  profiles:
+    active: dev
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 20MB
+
+server:
+  port: 8080
+
+mybatis-plus:
+  mapper-locations: classpath*:/mapper/**/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+  global-config:
+    db-config:
+      id-type: auto
+
+jwt:
+  secret: catering-jwt-secret-key-2026-dev-only
+  expiration-ms: 7200000
+
+file:
+  upload-dir: ./uploads
+
+aes:
+  secret: catering-aes-key-16b

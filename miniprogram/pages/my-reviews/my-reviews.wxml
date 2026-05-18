@@ -1,0 +1,12 @@
+<view class="container">
+  <view class="card" wx:for="{{list}}" wx:key="reviewId">
+    <view class="head">
+      <text class="dish">{{item.dishName || '菜品'}}</text>
+      <text class="status">{{statusText[item.auditStatus]}}</text>
+    </view>
+    <text class="score">★ {{item.score}}</text>
+    <text class="content">{{item.content}}</text>
+    <text class="time text-muted">{{item.createTime}}</text>
+  </view>
+  <view wx:if="{{!list.length}}" class="empty">暂无评价</view>
+</view>

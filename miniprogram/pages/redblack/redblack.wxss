@@ -1,0 +1,6 @@
+.tabs { display: flex; background: #fff; }
+.tab { flex: 1; text-align: center; padding: 24rpx; }
+.tab.active { color: #409EFF; border-bottom: 4rpx solid #409EFF; font-weight: bold; }
+.item { display: flex; align-items: center; gap: 20rpx; }
+.rank { font-size: 40rpx; font-weight: bold; color: #409EFF; width: 60rpx; }
+.name { font-size: 30rpx; display: block; }

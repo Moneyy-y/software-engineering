@@ -1,0 +1,33 @@
+<view class="container" wx:if="{{dish}}">
+  <swiper class="banner" indicator-dots>
+    <swiper-item wx:for="{{dish.images}}" wx:key="*this">
+      <image src="{{item}}" mode="aspectFill" class="banner-img" />
+    </swiper-item>
+  </swiper>
+  <view class="card">
+    <text class="title">{{dish.name}}</text>
+    <view class="row">
+      <text class="score">★ {{dish.avgScore}}</text>
+      <text class="price">¥{{dish.price}}</text>
+      <text class="text-muted">月售{{dish.saleCount}}</text>
+    </view>
+    <text class="text-muted">{{dish.shopName}} · {{dish.stallName}}</text>
+    <text class="desc">{{dish.description}}</text>
+  </view>
+  <view class="actions">
+    <button size="mini" bindtap="toggleFavorite">{{dish.favorited ? '已收藏' : '收藏'}}</button>
+    <button size="mini" type="primary" bindtap="goReview">写评价</button>
+  </view>
+  <view class="card">
+    <text class="section-title">用户评价</text>
+    <view class="review-item" wx:for="{{dish.reviews}}" wx:key="reviewId">
+      <view class="review-head">
+        <text>{{item.userName}}</text>
+        <text class="score">★ {{item.score}}</text>
+      </view>
+      <text>{{item.content}}</text>
+      <text class="text-muted">{{item.createTime}}</text>
+    </view>
+    <view wx:if="{{!dish.reviews.length}}" class="text-muted">暂无评价</view>
+  </view>
+</view>

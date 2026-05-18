@@ -1,0 +1,7 @@
+.title { font-size: 34rpx; font-weight: bold; display: block; margin-bottom: 16rpx; }
+.content { display: block; color: #666; margin-bottom: 24rpx; }
+.actions { margin-bottom: 24rpx; color: #409EFF; }
+.section { font-weight: bold; display: block; margin-bottom: 16rpx; }
+.comment { padding: 16rpx 0; border-top: 1rpx solid #eee; }
+.reply { display: flex; gap: 16rpx; margin-top: 24rpx; }
+.reply input { flex: 1; background: #f5f7fa; padding: 16rpx; border-radius: 8rpx; }

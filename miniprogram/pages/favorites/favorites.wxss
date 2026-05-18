@@ -1,0 +1,4 @@
+.item { display: flex; gap: 20rpx; }
+.cover { width: 120rpx; height: 120rpx; border-radius: 8rpx; background: #eee; }
+.name { font-weight: bold; display: block; }
+.empty { text-align: center; padding: 80rpx; color: #999; }

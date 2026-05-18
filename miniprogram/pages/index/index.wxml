@@ -1,0 +1,20 @@
+<view class="search-bar">
+  <input placeholder="搜索菜品" bindinput="onSearch" confirm-type="search" bindconfirm="loadDishes" />
+  <picker mode="selector" range="{{shops}}" range-key="name" bindchange="onShopChange">
+    <view class="filter-btn">{{shopName || '全部食堂'}}</view>
+  </picker>
+</view>
+<view class="dish-grid">
+  <view class="dish-card" wx:for="{{dishes}}" wx:key="dishId" bindtap="goDetail" data-id="{{item.dishId}}">
+    <image class="cover" src="{{item.coverImage || '/assets/placeholder.png'}}" mode="aspectFill" />
+    <view class="info">
+      <text class="name">{{item.name}}</text>
+      <view class="meta">
+        <text class="score">★ {{item.avgScore}}</text>
+        <text class="price">¥{{item.price}}</text>
+      </view>
+      <text class="shop text-muted">{{item.shopName}} · {{item.distanceKm ? item.distanceKm.toFixed(1) + 'km' : ''}}</text>
+    </view>
+  </view>
+</view>
+<view wx:if="{{!dishes.length}}" class="empty">暂无菜品</view>

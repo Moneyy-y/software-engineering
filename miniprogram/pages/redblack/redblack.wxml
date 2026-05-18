@@ -1,0 +1,13 @@
+<view class="tabs">
+  <view class="tab {{tab==='red'?'active':''}}" bindtap="switchTab" data-t="red">红榜</view>
+  <view class="tab {{tab==='black'?'active':''}}" bindtap="switchTab" data-t="black">黑榜</view>
+</view>
+<view class="container">
+  <view class="card item" wx:for="{{currentList}}" wx:for-index="idx" wx:key="dishId" bindtap="goDetail" data-id="{{item.dishId}}">
+    <text class="rank">{{idx + 1}}</text>
+    <view class="info">
+      <text class="name">{{item.name}}</text>
+      <text class="score">★ {{item.avgScore}}</text>
+    </view>
+  </view>
+</view>

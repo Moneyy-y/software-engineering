@@ -1,0 +1,32 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/recommend/recommend",
+    "pages/redblack/redblack",
+    "pages/profile/profile",
+    "pages/detail/detail",
+    "pages/review/review",
+    "pages/feedback/feedback",
+    "pages/forum/forum",
+    "pages/favorites/favorites",
+    "pages/my-reviews/my-reviews",
+    "pages/forum-detail/forum-detail"
+  ],
+  "window": {
+    "navigationBarTitleText": "高校餐饮",
+    "navigationBarBackgroundColor": "#409EFF",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#f5f7fa"
+  },
+  "tabBar": {
+    "color": "#999",
+    "selectedColor": "#409EFF",
+    "list": [
+      { "pagePath": "pages/index/index", "text": "首页", "iconPath": "assets/home.png", "selectedIconPath": "assets/home-active.png" },
+      { "pagePath": "pages/recommend/recommend", "text": "推荐", "iconPath": "assets/star.png", "selectedIconPath": "assets/star-active.png" },
+      { "pagePath": "pages/redblack/redblack", "text": "红黑榜", "iconPath": "assets/rank.png", "selectedIconPath": "assets/rank-active.png" },
+      { "pagePath": "pages/profile/profile", "text": "我的", "iconPath": "assets/user.png", "selectedIconPath": "assets/user-active.png" }
+    ]
+  },
+  "sitemapLocation": "sitemap.json"
+}

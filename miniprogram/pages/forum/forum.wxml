@@ -1,0 +1,8 @@
+<view class="container">
+  <view class="card post" wx:for="{{posts}}" wx:key="postId" bindtap="goDetail" data-id="{{item.postId}}">
+    <text class="title">{{item.title}}</text>
+    <text class="content">{{item.content}}</text>
+    <text class="text-muted">👍 {{item.likeCount}} · {{item.createTime}}</text>
+  </view>
+  <view class="fab" bindtap="showPublish">+</view>
+</view>

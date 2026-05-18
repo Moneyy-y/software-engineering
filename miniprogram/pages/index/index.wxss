@@ -1,0 +1,11 @@
+.search-bar { display: flex; padding: 20rpx; gap: 16rpx; background: #fff; }
+.search-bar input { flex: 1; background: #f5f7fa; padding: 16rpx 24rpx; border-radius: 32rpx; }
+.filter-btn { padding: 16rpx 24rpx; background: #ecf5ff; color: #409EFF; border-radius: 32rpx; font-size: 26rpx; }
+.dish-grid { display: flex; flex-wrap: wrap; padding: 10rpx; }
+.dish-card { width: 48%; margin: 1%; background: #fff; border-radius: 16rpx; overflow: hidden; }
+.cover { width: 100%; height: 240rpx; background: #eee; }
+.info { padding: 16rpx; }
+.name { font-size: 28rpx; font-weight: bold; display: block; }
+.meta { display: flex; justify-content: space-between; margin: 8rpx 0; }
+.price { color: #f56c6c; font-weight: bold; }
+.empty { text-align: center; padding: 100rpx; color: #999; }

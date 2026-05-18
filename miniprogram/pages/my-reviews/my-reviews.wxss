@@ -1,0 +1,6 @@
+.head { display: flex; justify-content: space-between; margin-bottom: 12rpx; }
+.dish { font-weight: bold; }
+.status { font-size: 24rpx; color: #409EFF; }
+.content { display: block; margin: 12rpx 0; color: #666; }
+.time { font-size: 24rpx; }
+.empty { text-align: center; padding: 80rpx; color: #999; }

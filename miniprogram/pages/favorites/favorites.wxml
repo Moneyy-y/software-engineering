@@ -1,0 +1,10 @@
+<view class="container">
+  <view class="card item" wx:for="{{list}}" wx:key="dishId" bindtap="goDetail" data-id="{{item.dishId}}">
+    <image class="cover" src="{{item.coverImage}}" mode="aspectFill" />
+    <view class="info">
+      <text class="name">{{item.name}}</text>
+      <text class="score">★ {{item.avgScore}} · ¥{{item.price}}</text>
+    </view>
+  </view>
+  <view wx:if="{{!list.length}}" class="empty">暂无收藏</view>
+</view>

@@ -1,0 +1,6 @@
+page { background: #f5f7fa; font-size: 28rpx; color: #333; }
+.container { padding: 20rpx; }
+.card { background: #fff; border-radius: 16rpx; padding: 24rpx; margin-bottom: 20rpx; box-shadow: 0 2rpx 12rpx rgba(0,0,0,.06); }
+.btn-primary { background: #409EFF; color: #fff; border-radius: 40rpx; }
+.text-muted { color: #909399; font-size: 24rpx; }
+.score { color: #ff9900; font-weight: bold; }

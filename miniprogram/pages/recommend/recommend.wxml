@@ -1,0 +1,11 @@
+<view class="container">
+  <view class="dish-card card" wx:for="{{list}}" wx:key="dishId" bindtap="goDetail" data-id="{{item.dishId}}">
+    <image class="cover" src="{{item.coverImage}}" mode="aspectFill" />
+    <view class="info">
+      <text class="name">{{item.name}}</text>
+      <text class="score">★ {{item.avgScore}} · ¥{{item.price}}</text>
+      <text class="text-muted">{{item.shopName}}</text>
+    </view>
+  </view>
+  <view wx:if="{{!list.length}}" class="empty">登录后获取个性化推荐</view>
+</view>

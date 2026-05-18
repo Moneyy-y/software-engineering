@@ -1,0 +1,17 @@
+<view class="container card" wx:if="{{post}}">
+  <text class="title">{{post.title}}</text>
+  <text class="content">{{post.content}}</text>
+  <view class="actions">
+    <text bindtap="toggleLike">👍 {{post.likeCount}} {{post.liked ? '已赞' : '点赞'}}</text>
+  </view>
+  <view class="comments">
+    <text class="section">评论</text>
+    <view class="comment" wx:for="{{post.comments}}" wx:key="commentId">
+      <text>{{item.content}}</text>
+    </view>
+  </view>
+  <view class="reply">
+    <input placeholder="写评论..." bindinput="onComment" />
+    <button size="mini" type="primary" bindtap="sendComment">发送</button>
+  </view>
+</view>
