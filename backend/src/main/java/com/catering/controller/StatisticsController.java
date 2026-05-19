@@ -32,4 +32,13 @@ public class StatisticsController {
                 .contentType(MediaType.parseMediaType("text/csv;charset=UTF-8"))
                 .body(bytes);
     }
+
+    @GetMapping("/export/excel")
+    public ResponseEntity<byte[]> exportExcel() throws java.io.IOException {
+        byte[] excelBytes = statisticsService.exportExcel();
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=dashboard-report.xlsx")
+                .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                .body(excelBytes);
+    }
 }

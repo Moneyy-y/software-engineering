@@ -12,6 +12,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 @Component
 public class JwtUtil {
@@ -21,6 +22,9 @@ public class JwtUtil {
 
     @Value("${jwt.expiration-ms}")
     private long expirationMs;
+
+    @Value("${jwt.refresh-expiration-ms:86400000}")
+    private long refreshExpirationMs;
 
     private SecretKey key() {
         byte[] bytes = secret.getBytes(StandardCharsets.UTF_8);
@@ -34,11 +38,26 @@ public class JwtUtil {
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", userId);
         claims.put("role", role);
+        claims.put("type", "access");
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(String.valueOf(userId))
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + expirationMs))
+                .signWith(key(), SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    public String generateRefreshToken(Long userId) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("userId", userId);
+        claims.put("type", "refresh");
+        claims.put("jti", UUID.randomUUID().toString());
+        return Jwts.builder()
+                .setClaims(claims)
+                .setSubject(String.valueOf(userId))
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + refreshExpirationMs))
                 .signWith(key(), SignatureAlgorithm.HS256)
                 .compact();
     }
@@ -58,5 +77,14 @@ public class JwtUtil {
     public String getRole(String token) {
         Object role = parseToken(token).get("role");
         return role == null ? null : role.toString();
+    }
+
+    public String getTokenType(String token) {
+        Object type = parseToken(token).get("type");
+        return type == null ? null : type.toString();
+    }
+
+    public long getRefreshExpirationMs() {
+        return refreshExpirationMs;
     }
 }

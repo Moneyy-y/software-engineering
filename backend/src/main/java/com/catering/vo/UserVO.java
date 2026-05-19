@@ -23,11 +23,18 @@ public class UserVO {
         vo.setUsername(user.getUsername());
         vo.setNickname(user.getNickname());
         vo.setAvatar(user.getAvatar());
-        vo.setMobile(user.getMobile());
+        vo.setMobile(maskMobile(user.getMobile()));
         vo.setRole(user.getRole());
         vo.setStatus(user.getStatus());
         vo.setCreateTime(user.getCreateTime());
         vo.setUpdateTime(user.getUpdateTime());
         return vo;
+    }
+
+    private static String maskMobile(String mobile) {
+        if (mobile == null || mobile.length() < 7) {
+            return mobile;
+        }
+        return mobile.substring(0, 3) + "****" + mobile.substring(7);
     }
 }

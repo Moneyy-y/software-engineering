@@ -5,8 +5,10 @@ import com.catering.common.BusinessException;
 import com.catering.common.PageResult;
 import com.catering.context.UserContext;
 import com.catering.entity.Comment;
+import com.catering.entity.Dish;
 import com.catering.entity.Post;
 import com.catering.mapper.CommentMapper;
+import com.catering.mapper.DishMapper;
 import com.catering.mapper.PostMapper;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -24,14 +26,16 @@ public class PostService {
 
     private final PostMapper postMapper;
     private final CommentMapper commentMapper;
+    private final DishMapper dishMapper;
     private final SensitiveWordService sensitiveWordService;
     private final StringRedisTemplate redisTemplate;
 
-    public PostService(PostMapper postMapper, CommentMapper commentMapper,
+    public PostService(PostMapper postMapper, CommentMapper commentMapper, DishMapper dishMapper,
                        SensitiveWordService sensitiveWordService,
                        StringRedisTemplate redisTemplate) {
         this.postMapper = postMapper;
         this.commentMapper = commentMapper;
+        this.dishMapper = dishMapper;
         this.sensitiveWordService = sensitiveWordService;
         this.redisTemplate = redisTemplate;
     }
@@ -169,6 +173,63 @@ public class PostService {
     public void deletePosts(List<Long> postIds) {
         for (Long postId : postIds) {
             deletePost(postId);
+        }
+    }
+
+    public Map<String, Object> getBoardList(int page, int size) {
+        List<Dish> allDishes = dishMapper.selectList(new LambdaQueryWrapper<Dish>()
+                .eq(Dish::getStatus, 1));
+        List<Map<String, Object>> redList = new ArrayList<>();
+        List<Map<String, Object>> blackList = new ArrayList<>();
+        for (Dish dish : allDishes) {
+            Map<String, Object> item = new HashMap<>();
+            item.put("dishId", dish.getDishId());
+            item.put("name", dish.getName());
+            item.put("avgScore", dish.getAvgScore());
+            item.put("saleCount", dish.getSaleCount());
+            item.put("boardStatus", dish.getBoardStatus());
+            if ("red".equals(dish.getBoardStatus())) {
+                redList.add(item);
+            } else if ("black".equals(dish.getBoardStatus())) {
+                blackList.add(item);
+            }
+        }
+        Map<String, Object> result = new HashMap<>();
+        result.put("redList", redList);
+        result.put("blackList", blackList);
+        return result;
+    }
+
+    public void interveneBoard(Long dishId, String action) {
+        Dish dish = dishMapper.selectById(dishId);
+        if (dish == null) {
+            throw new BusinessException("菜品不存在");
+        }
+        switch (action) {
+            case "add_red":
+                dish.setBoardStatus("red");
+                break;
+            case "add_black":
+                dish.setBoardStatus("black");
+                break;
+            case "remove_red":
+                dish.setBoardStatus("red_remove");
+                break;
+            case "remove_black":
+                dish.setBoardStatus("black_remove");
+                break;
+            case "cancel":
+                dish.setBoardStatus(null);
+                break;
+            default:
+                throw new BusinessException("无效的操作");
+        }
+        dishMapper.updateById(dish);
+    }
+
+    public void batchInterveneBoard(List<Long> dishIds, String action) {
+        for (Long dishId : dishIds) {
+            interveneBoard(dishId, action);
         }
     }
 

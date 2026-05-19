@@ -92,6 +92,18 @@ public class UserService {
     }
 
     public LoginVO adminLogin(AdminLoginDTO dto) {
+        if (dto.getCaptchaKey() == null || dto.getCaptcha() == null) {
+            throw new BusinessException(1007, "验证码不能为空");
+        }
+        String storedCaptcha = redisTemplate.opsForValue().get("captcha:" + dto.getCaptchaKey());
+        if (storedCaptcha == null) {
+            throw new BusinessException(1008, "验证码已过期");
+        }
+        if (!storedCaptcha.equalsIgnoreCase(dto.getCaptcha())) {
+            throw new BusinessException(1009, "验证码错误");
+        }
+        redisTemplate.delete("captcha:" + dto.getCaptchaKey());
+        
         User user = userMapper.selectOne(new LambdaQueryWrapper<User>()
                 .eq(User::getUsername, dto.getUsername()));
         if (user == null || !passwordEncoder.matches(dto.getPassword(), user.getPassword())) {
@@ -101,6 +113,36 @@ public class UserService {
             throw new BusinessException(1003, "无管理端权限");
         }
         return buildLoginVO(user);
+    }
+
+    public LoginVO refreshToken(String refreshToken) {
+        try {
+            String tokenType = jwtUtil.getTokenType(refreshToken);
+            if (!"refresh".equals(tokenType)) {
+                throw new BusinessException(1010, "无效的刷新令牌");
+            }
+            Long userId = jwtUtil.getUserId(refreshToken);
+            String storedRefreshToken = redisTemplate.opsForValue().get("refresh_token:" + userId);
+            if (!refreshToken.equals(storedRefreshToken)) {
+                throw new BusinessException(1011, "刷新令牌已失效");
+            }
+            User user = userMapper.selectById(userId);
+            if (user == null) {
+                throw new BusinessException(1004, "用户不存在");
+            }
+            return buildLoginVO(user);
+        } catch (Exception e) {
+            throw new BusinessException(1010, "刷新令牌无效");
+        }
+    }
+
+    public Long getCurrentUserId() {
+        return UserContext.getUserId();
+    }
+
+    public User getCurrentUser() {
+        Long userId = UserContext.getUserId();
+        return userMapper.selectById(userId);
     }
 
     public Map<String, Object> getUserInfo() {
@@ -299,8 +341,12 @@ public class UserService {
 
     private LoginVO buildLoginVO(User user) {
         String token = jwtUtil.generateToken(user.getUserId(), user.getRole());
+        String refreshToken = jwtUtil.generateRefreshToken(user.getUserId());
+        redisTemplate.opsForValue().set("refresh_token:" + user.getUserId(), refreshToken, 
+                jwtUtil.getRefreshExpirationMs(), TimeUnit.MILLISECONDS);
         LoginVO vo = new LoginVO();
         vo.setToken(token);
+        vo.setRefreshToken(refreshToken);
         vo.setUserId(user.getUserId());
         vo.setNickname(user.getNickname());
         vo.setAvatar(user.getAvatar());

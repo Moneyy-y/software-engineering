@@ -3,6 +3,10 @@ package com.catering.controller;
 import com.catering.common.PageResult;
 import com.catering.common.Result;
 import com.catering.dto.LoginDTO;
+import com.catering.entity.Message;
+import com.catering.entity.UserBrowse;
+import com.catering.service.BrowseService;
+import com.catering.service.MessageService;
 import com.catering.service.UserService;
 import com.catering.vo.LoginVO;
 import com.catering.vo.ReviewVO;
@@ -18,9 +22,13 @@ import java.util.Map;
 public class UserController {
 
     private final UserService userService;
+    private final BrowseService browseService;
+    private final MessageService messageService;
 
-    public UserController(UserService userService) {
+    public UserController(UserService userService, BrowseService browseService, MessageService messageService) {
         this.userService = userService;
+        this.browseService = browseService;
+        this.messageService = messageService;
     }
 
     @PostMapping("/login")
@@ -63,6 +71,51 @@ public class UserController {
         if (auth != null && auth.startsWith("Bearer ")) {
             userService.logout(auth.substring(7));
         }
+        return Result.ok();
+    }
+
+    @PostMapping("/browse")
+    public Result<Void> addBrowse(@RequestParam Long dishId) {
+        browseService.addBrowse(userService.getCurrentUserId(), dishId, null);
+        return Result.ok();
+    }
+
+    @GetMapping("/browse/history")
+    public Result<List<UserBrowse>> getBrowseHistory() {
+        return Result.ok(browseService.getBrowseHistory(userService.getCurrentUserId()));
+    }
+
+    @DeleteMapping("/browse/clear")
+    public Result<Void> clearBrowseHistory() {
+        browseService.clearBrowseHistory(userService.getCurrentUserId());
+        return Result.ok();
+    }
+
+    @GetMapping("/message/list")
+    public Result<List<Message>> getMessages() {
+        return Result.ok(messageService.getMessages(userService.getCurrentUserId()));
+    }
+
+    @GetMapping("/message/unread/count")
+    public Result<Integer> getUnreadCount() {
+        return Result.ok(messageService.getUnreadCount(userService.getCurrentUserId()));
+    }
+
+    @PutMapping("/message/read")
+    public Result<Void> markAsRead() {
+        messageService.markAsRead(userService.getCurrentUserId());
+        return Result.ok();
+    }
+
+    @DeleteMapping("/message/{id}")
+    public Result<Void> deleteMessage(@PathVariable Long id) {
+        messageService.deleteMessage(id);
+        return Result.ok();
+    }
+
+    @DeleteMapping("/message/clear")
+    public Result<Void> deleteAllMessages() {
+        messageService.deleteAll(userService.getCurrentUserId());
         return Result.ok();
     }
 }

@@ -1,13 +1,17 @@
 USE catering;
 
 -- 管理员 admin / admin123 (BCrypt)
-INSERT INTO `user` (`username`, `password`, `nickname`, `role`, `status`) VALUES
-('admin', '$2a$10$tZkB.MW5C/gqiujshTxLOuDQoOEkgxdAKZkGHSj58y2N.zZCHHAUi', '系统管理员', 'admin', 1);
+INSERT INTO `user` (`username`, `password`, `nickname`, `mobile`, `role`, `status`) VALUES
+('admin', '$2a$10$tZkB.MW5C/gqiujshTxLOuDQoOEkgxdAKZkGHSj58y2N.zZCHHAUi', '系统管理员', '13800138000', 'admin', 1);
+
+-- 审核员 auditor / admin123 (BCrypt - 和admin密码一样)
+INSERT INTO `user` (`username`, `password`, `nickname`, `mobile`, `role`, `status`) VALUES
+('auditor', '$2a$10$tZkB.MW5C/gqiujshTxLOuDQoOEkgxdAKZkGHSj58y2N.zZCHHAUi', '审核员', '13900139000', 'auditor', 1);
 
 -- 测试学生用户
-INSERT INTO `user` (`open_id`, `nickname`, `avatar`, `role`, `status`) VALUES
-('mock_openid_001', '测试同学', 'https://thirdwx.qlogo.cn/mmopen/vi_32/default.png', 'student', 1),
-('mock_openid_002', '美食达人', 'https://thirdwx.qlogo.cn/mmopen/vi_32/default.png', 'student', 1);
+INSERT INTO `user` (`open_id`, `nickname`, `avatar`, `mobile`, `role`, `status`) VALUES
+('mock_openid_001', '测试同学', 'https://thirdwx.qlogo.cn/mmopen/vi_32/default.png', '13712345678', 'student', 1),
+('mock_openid_002', '美食达人', 'https://thirdwx.qlogo.cn/mmopen/vi_32/default.png', '13688889999', 'student', 1);
 
 -- 食堂
 INSERT INTO `shop` (`name`, `type`, `address`, `lng`, `lat`, `avg_price`, `avg_score`, `business_hours`, `status`) VALUES
@@ -75,3 +79,30 @@ INSERT INTO `sensitive_word` (`content`, `category`) VALUES
 INSERT INTO `post` (`user_id`, `title`, `content`, `zone`, `audit_status`, `like_count`) VALUES
 (2, '第一食堂必吃榜', '强烈推荐牛肉拉面和宫保鸡丁！', 'recommend', 'approved', 15),
 (3, '避雷指南', '南门炸鸡店最近品质下降', 'warning', 'approved', 8);
+
+-- 菜单
+INSERT INTO `menu` (`menu_id`, `name`, `path`, `icon`, `parent_id`, `sort_order`, `roles`, `status`) VALUES 
+(1, '数据看板', '/dashboard', 'DataLine', 0, 1, '', 1), 
+(2, '食堂档口', '/shop', 'Shop', 0, 2, '', 1), 
+(3, '菜品管理', '/dish', 'Food', 0, 3, '', 1), 
+(4, '评价审核', '/audit', 'Edit', 0, 4, '', 1), 
+(5, '帖子审核', '/post-audit', 'Document', 0, 5, '', 1), 
+(6, '敏感词库', '/sensitive', 'Warning', 0, 6, '', 1), 
+(7, '反馈处理', '/feedback', 'ChatDotSquare', 0, 7, '', 1), 
+(8, '红黑榜', '/redblack', 'Trophy', 0, 8, '', 1), 
+(9, '举报管理', '/report', 'Warning', 0, 9, '', 1), 
+(10, '权限管理', '/permission', 'Lock', 0, 10, '', 1);
+
+-- 角色-菜单分配
+-- admin角色分配所有10个菜单
+INSERT INTO `role_menu` (`role`, `menu_id`) VALUES 
+('admin', 1), ('admin', 2), ('admin', 3), ('admin', 4), ('admin', 5), 
+('admin', 6), ('admin', 7), ('admin', 8), ('admin', 9), ('admin', 10);
+
+-- auditor角色分配：看板、评价审核、帖子审核、敏感词库、举报管理（共5个）
+INSERT INTO `role_menu` (`role`, `menu_id`) VALUES 
+('auditor', 1), ('auditor', 4), ('auditor', 5), ('auditor', 6), ('auditor', 9);
+
+-- student角色：仅看板
+INSERT INTO `role_menu` (`role`, `menu_id`) VALUES 
+('student', 1);

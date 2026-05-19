@@ -69,6 +69,7 @@ CREATE TABLE IF NOT EXISTS `dish` (
   `review_count` INT DEFAULT 0,
   `sale_count` INT DEFAULT 0,
   `status` TINYINT DEFAULT 1,
+  `board_status` VARCHAR(20) DEFAULT NULL COMMENT 'red上榜/red_remove黑榜移除/black上榜/black_remove红榜移除',
   `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP,
   `update_time` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`dish_id`),
@@ -183,6 +184,88 @@ CREATE TABLE IF NOT EXISTS `sensitive_word` (
   `status` TINYINT DEFAULT 1,
   PRIMARY KEY (`word_id`),
   UNIQUE KEY `uk_content` (`content`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- 浏览记录
+CREATE TABLE IF NOT EXISTS `user_browse` (
+  `browse_id` BIGINT NOT NULL AUTO_INCREMENT,
+  `user_id` BIGINT NOT NULL,
+  `dish_id` BIGINT,
+  `post_id` BIGINT,
+  `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`browse_id`),
+  KEY `idx_user_id` (`user_id`),
+  CONSTRAINT `fk_browse_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- 消息
+CREATE TABLE IF NOT EXISTS `message` (
+  `message_id` BIGINT NOT NULL AUTO_INCREMENT,
+  `user_id` BIGINT NOT NULL,
+  `title` VARCHAR(100) NOT NULL,
+  `content` TEXT NOT NULL,
+  `type` VARCHAR(20) DEFAULT 'system',
+  `is_read` BOOLEAN DEFAULT FALSE,
+  `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`message_id`),
+  KEY `idx_user_id` (`user_id`),
+  CONSTRAINT `fk_message_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- 举报表
+CREATE TABLE IF NOT EXISTS `report` (
+  `report_id` BIGINT NOT NULL AUTO_INCREMENT,
+  `user_id` BIGINT NOT NULL,
+  `target_type` VARCHAR(20) NOT NULL COMMENT 'post/review/comment',
+  `target_id` BIGINT NOT NULL,
+  `reason` VARCHAR(100) NOT NULL,
+  `description` VARCHAR(500) DEFAULT '',
+  `status` VARCHAR(20) DEFAULT 'pending',
+  `handler_id` BIGINT DEFAULT NULL,
+  `handle_result` VARCHAR(500) DEFAULT NULL,
+  `handle_time` DATETIME DEFAULT NULL,
+  `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`report_id`),
+  KEY `idx_status` (`status`),
+  KEY `idx_user_id` (`user_id`),
+  CONSTRAINT `fk_report_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- 菜单表
+CREATE TABLE IF NOT EXISTS `menu` (
+  `menu_id` BIGINT NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(50) NOT NULL,
+  `path` VARCHAR(100) NOT NULL,
+  `icon` VARCHAR(50) DEFAULT '',
+  `parent_id` BIGINT DEFAULT 0,
+  `sort_order` INT DEFAULT 0,
+  `roles` VARCHAR(200) DEFAULT '',
+  `status` TINYINT DEFAULT 1,
+  PRIMARY KEY (`menu_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- 角色菜单关联表
+CREATE TABLE IF NOT EXISTS `role_menu` (
+  `id` BIGINT NOT NULL AUTO_INCREMENT,
+  `role` VARCHAR(20) NOT NULL,
+  `menu_id` BIGINT NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_role_menu` (`role`, `menu_id`),
+  CONSTRAINT `fk_role_menu_menu` FOREIGN KEY (`menu_id`) REFERENCES `menu` (`menu_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- 审计日志表
+CREATE TABLE IF NOT EXISTS `audit_log` (
+  `log_id` BIGINT NOT NULL AUTO_INCREMENT,
+  `user_id` BIGINT,
+  `username` VARCHAR(50),
+  `operation` VARCHAR(100),
+  `method` VARCHAR(200),
+  `params` TEXT,
+  `ip` VARCHAR(50),
+  `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`log_id`),
+  KEY `idx_user_id` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 SET FOREIGN_KEY_CHECKS = 1;

@@ -10,8 +10,12 @@ import com.catering.mapper.FeedbackMapper;
 import com.catering.mapper.PostMapper;
 import com.catering.mapper.ReviewMapper;
 import com.catering.vo.DashboardVO;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -115,5 +119,112 @@ public class StatisticsService {
                     .append(row.get("avgScore")).append("\n");
         }
         return sb.toString();
+    }
+
+    public byte[] exportExcel() throws IOException {
+        DashboardVO vo = getDashboard();
+        try (Workbook workbook = new XSSFWorkbook();
+             ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            
+            CellStyle headerStyle = workbook.createCellStyle();
+            Font headerFont = workbook.createFont();
+            headerFont.setBold(true);
+            headerStyle.setFont(headerFont);
+            headerStyle.setAlignment(HorizontalAlignment.CENTER);
+            
+            Sheet summarySheet = workbook.createSheet("数据概览");
+            int rowNum = 0;
+            Row titleRow = summarySheet.createRow(rowNum++);
+            Cell titleCell = titleRow.createCell(0);
+            titleCell.setCellValue("运营数据报表");
+            titleCell.setCellStyle(headerStyle);
+            
+            rowNum++;
+            
+            Row summaryHeaderRow = summarySheet.createRow(rowNum++);
+            summaryHeaderRow.createCell(0).setCellValue("指标");
+            summaryHeaderRow.createCell(1).setCellValue("数值");
+            
+            Row row1 = summarySheet.createRow(rowNum++);
+            row1.createCell(0).setCellValue("今日评价数");
+            row1.createCell(1).setCellValue(vo.getTodayReviewCount());
+            
+            Row row2 = summarySheet.createRow(rowNum++);
+            row2.createCell(0).setCellValue("待审核评价");
+            row2.createCell(1).setCellValue(vo.getPendingAuditCount());
+            
+            Row row3 = summarySheet.createRow(rowNum++);
+            row3.createCell(0).setCellValue("待审核评价数");
+            row3.createCell(1).setCellValue(vo.getPendingReviewCount());
+            
+            Row row4 = summarySheet.createRow(rowNum++);
+            row4.createCell(0).setCellValue("待审核帖子数");
+            row4.createCell(1).setCellValue(vo.getPendingPostCount());
+            
+            Row row5 = summarySheet.createRow(rowNum++);
+            row5.createCell(0).setCellValue("待处理反馈");
+            row5.createCell(1).setCellValue(vo.getPendingFeedbackCount());
+            
+            Row row6 = summarySheet.createRow(rowNum++);
+            row6.createCell(0).setCellValue("菜品总数");
+            row6.createCell(1).setCellValue(vo.getTotalDishCount());
+            
+            summarySheet.autoSizeColumn(0);
+            summarySheet.autoSizeColumn(1);
+            
+            Sheet trendSheet = workbook.createSheet("评分趋势");
+            rowNum = 0;
+            Row trendHeaderRow = trendSheet.createRow(rowNum++);
+            trendHeaderRow.createCell(0).setCellValue("日期");
+            trendHeaderRow.createCell(1).setCellValue("平均评分");
+            trendHeaderRow.createCell(2).setCellValue("评价数");
+            
+            for (Map<String, Object> row : vo.getScoreTrendData()) {
+                Row dataRow = trendSheet.createRow(rowNum++);
+                dataRow.createCell(0).setCellValue(row.get("date").toString());
+                dataRow.createCell(1).setCellValue(((Number) row.get("avgScore")).doubleValue());
+                dataRow.createCell(2).setCellValue(((Number) row.get("count")).longValue());
+            }
+            
+            trendSheet.autoSizeColumn(0);
+            trendSheet.autoSizeColumn(1);
+            trendSheet.autoSizeColumn(2);
+            
+            Sheet hotSheet = workbook.createSheet("热门菜品");
+            rowNum = 0;
+            Row hotHeaderRow = hotSheet.createRow(rowNum++);
+            hotHeaderRow.createCell(0).setCellValue("菜品名称");
+            hotHeaderRow.createCell(1).setCellValue("销量");
+            hotHeaderRow.createCell(2).setCellValue("评分");
+            
+            for (Map<String, Object> row : vo.getHotDishTop10()) {
+                Row dataRow = hotSheet.createRow(rowNum++);
+                dataRow.createCell(0).setCellValue(row.get("name").toString());
+                dataRow.createCell(1).setCellValue(((Number) row.get("saleCount")).longValue());
+                dataRow.createCell(2).setCellValue(((Number) row.get("avgScore")).doubleValue());
+            }
+            
+            hotSheet.autoSizeColumn(0);
+            hotSheet.autoSizeColumn(1);
+            hotSheet.autoSizeColumn(2);
+            
+            Sheet complaintSheet = workbook.createSheet("反馈分类");
+            rowNum = 0;
+            Row complaintHeaderRow = complaintSheet.createRow(rowNum++);
+            complaintHeaderRow.createCell(0).setCellValue("反馈类型");
+            complaintHeaderRow.createCell(1).setCellValue("数量");
+            
+            for (Map<String, Object> row : vo.getComplaintDistData()) {
+                Row dataRow = complaintSheet.createRow(rowNum++);
+                dataRow.createCell(0).setCellValue(row.get("type").toString());
+                dataRow.createCell(1).setCellValue(((Number) row.get("count")).longValue());
+            }
+            
+            complaintSheet.autoSizeColumn(0);
+            complaintSheet.autoSizeColumn(1);
+            
+            workbook.write(outputStream);
+            return outputStream.toByteArray();
+        }
     }
 }

@@ -25,6 +25,7 @@ public class Dish {
     private Integer reviewCount;
     private Integer saleCount;
     private Integer status;
+    private String boardStatus;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
 }

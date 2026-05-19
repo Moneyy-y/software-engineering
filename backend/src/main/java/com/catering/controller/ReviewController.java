@@ -1,5 +1,6 @@
 package com.catering.controller;
 
+import com.catering.annotation.RateLimit;
 import com.catering.common.PageResult;
 import com.catering.common.Result;
 import com.catering.dto.ReviewSubmitDTO;
@@ -18,6 +19,7 @@ public class ReviewController {
     }
 
     @PostMapping("/submit")
+    @RateLimit(count = 5, seconds = 3600)
     public Result<Void> submit(@RequestBody ReviewSubmitDTO dto) {
         reviewService.submitReview(dto);
         return Result.ok();
