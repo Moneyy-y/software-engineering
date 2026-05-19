@@ -154,6 +154,7 @@ CREATE TABLE IF NOT EXISTS `post` (
   `like_count` INT DEFAULT 0,
   `comment_count` INT DEFAULT 0,
   `audit_status` VARCHAR(20) DEFAULT 'pending',
+  `reject_reason` VARCHAR(500) DEFAULT NULL COMMENT '拒绝原因',
   `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`post_id`),
   KEY `idx_audit_status` (`audit_status`),

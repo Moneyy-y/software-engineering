@@ -19,5 +19,6 @@ public class Post {
     private Integer likeCount;
     private Integer commentCount;
     private String auditStatus;
+    private String rejectReason;
     private LocalDateTime createTime;
 }

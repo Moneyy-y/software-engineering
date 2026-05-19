@@ -30,7 +30,7 @@
     }
   },
   "compileType": "miniprogram",
-  "libVersion": "3.3.4",
+  "libVersion": "3.16.0",
   "appid": "wxfb09128014621b16",
   "projectname": "catering-miniprogram",
   "condition": {},

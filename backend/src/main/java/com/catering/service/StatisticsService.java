@@ -45,6 +45,8 @@ public class StatisticsService {
         long pendingPosts = postMapper.selectCount(new LambdaQueryWrapper<Post>()
                 .eq(Post::getAuditStatus, "pending"));
         vo.setPendingAuditCount(pendingReviews + pendingPosts);
+        vo.setPendingReviewCount(pendingReviews);
+        vo.setPendingPostCount(pendingPosts);
         vo.setPendingFeedbackCount(feedbackMapper.selectCount(new LambdaQueryWrapper<Feedback>()
                 .in(Feedback::getStatus, "pending", "processing")));
         vo.setTotalDishCount(dishMapper.selectCount(new LambdaQueryWrapper<Dish>().eq(Dish::getStatus, 1)));

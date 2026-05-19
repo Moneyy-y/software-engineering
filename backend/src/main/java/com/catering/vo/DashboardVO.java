@@ -8,6 +8,8 @@ import java.util.Map;
 public class DashboardVO {
     private long todayReviewCount;
     private long pendingAuditCount;
+    private long pendingReviewCount;
+    private long pendingPostCount;
     private long pendingFeedbackCount;
     private long totalDishCount;
     private List<Map<String, Object>> scoreTrendData;

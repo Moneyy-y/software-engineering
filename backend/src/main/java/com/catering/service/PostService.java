@@ -138,11 +138,37 @@ public class PostService {
         }
     }
 
-    public void rejectPost(Long postId) {
+    public void approvePosts(List<Long> postIds) {
+        for (Long postId : postIds) {
+            approvePost(postId);
+        }
+    }
+
+    public void rejectPost(Long postId, String reason) {
         Post post = postMapper.selectById(postId);
         if (post != null) {
             post.setAuditStatus("rejected");
+            post.setRejectReason(reason);
             postMapper.updateById(post);
+        }
+    }
+
+    public void rejectPosts(List<Long> postIds, String reason) {
+        for (Long postId : postIds) {
+            rejectPost(postId, reason);
+        }
+    }
+
+    public void deletePost(Long postId) {
+        commentMapper.delete(new LambdaQueryWrapper<Comment>()
+                .eq(Comment::getPostId, postId));
+        postMapper.deleteById(postId);
+        redisTemplate.delete(likeKey(postId));
+    }
+
+    public void deletePosts(List<Long> postIds) {
+        for (Long postId : postIds) {
+            deletePost(postId);
         }
     }
 

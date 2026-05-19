@@ -2,16 +2,22 @@ package com.catering.controller;
 
 import com.catering.common.PageResult;
 import com.catering.common.Result;
+import com.catering.dto.UserQueryDTO;
+import com.catering.dto.UserSaveDTO;
 import com.catering.entity.SensitiveWord;
 import com.catering.entity.Shop;
 import com.catering.entity.Stall;
+import com.catering.entity.User;
 import com.catering.service.DishService;
 import com.catering.service.PostService;
 import com.catering.service.SensitiveWordService;
+import com.catering.service.UserService;
+import com.catering.vo.UserVO;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/admin")
@@ -20,12 +26,15 @@ public class AdminManageController {
     private final SensitiveWordService sensitiveWordService;
     private final DishService dishService;
     private final PostService postService;
+    private final UserService userService;
 
     public AdminManageController(SensitiveWordService sensitiveWordService,
-                                 DishService dishService, PostService postService) {
+                                 DishService dishService, PostService postService,
+                                 UserService userService) {
         this.sensitiveWordService = sensitiveWordService;
         this.dishService = dishService;
         this.postService = postService;
+        this.userService = userService;
     }
 
     @GetMapping("/sensitive-word/list")
@@ -79,9 +88,77 @@ public class AdminManageController {
         return Result.ok();
     }
 
-    @PostMapping("/post/reject")
-    public Result<Void> rejectPost(@RequestParam Long postId) {
-        postService.rejectPost(postId);
+    @PostMapping("/post/approve/batch")
+    public Result<Void> approvePosts(@RequestBody List<Long> postIds) {
+        postService.approvePosts(postIds);
         return Result.ok();
+    }
+
+    @PostMapping("/post/reject")
+    public Result<Void> rejectPost(@RequestParam Long postId, 
+                                    @RequestParam(required = false) String reason) {
+        postService.rejectPost(postId, reason);
+        return Result.ok();
+    }
+
+    @PostMapping("/post/reject/batch")
+    public Result<Void> rejectPosts(@RequestBody Map<String, Object> params) {
+        @SuppressWarnings("unchecked")
+        List<Integer> ids = (List<Integer>) params.get("postIds");
+        List<Long> postIds = ids.stream().map(Long::valueOf).collect(Collectors.toList());
+        String reason = (String) params.get("reason");
+        postService.rejectPosts(postIds, reason);
+        return Result.ok();
+    }
+
+    @PostMapping("/post/delete")
+    public Result<Void> deletePost(@RequestParam Long postId) {
+        postService.deletePost(postId);
+        return Result.ok();
+    }
+
+    @PostMapping("/post/delete/batch")
+    public Result<Void> deletePosts(@RequestBody List<Integer> ids) {
+        List<Long> postIds = ids.stream().map(Long::valueOf).collect(Collectors.toList());
+        postService.deletePosts(postIds);
+        return Result.ok();
+    }
+
+    @GetMapping("/user/list")
+    public Result<PageResult<UserVO>> listUsers(UserQueryDTO query,
+                                                 @RequestParam(defaultValue = "1") int page,
+                                                 @RequestParam(defaultValue = "20") int size) {
+        PageResult<User> result = userService.listUsers(query, page, size);
+        List<UserVO> records = result.getRecords().stream()
+                .map(UserVO::of)
+                .collect(Collectors.toList());
+        return Result.ok(new PageResult<>(records, result.getTotal(), page, size));
+    }
+
+    @GetMapping("/user/{userId}")
+    public Result<UserVO> getUserById(@PathVariable Long userId) {
+        User user = userService.getUserById(userId);
+        if (user == null) {
+            return Result.fail(1004, "用户不存在");
+        }
+        return Result.ok(UserVO.of(user));
+    }
+
+    @PostMapping("/user/save")
+    public Result<UserVO> saveUser(@RequestBody UserSaveDTO dto) {
+        User user = userService.saveUser(dto);
+        return Result.ok(UserVO.of(user));
+    }
+
+    @PostMapping("/user/delete")
+    public Result<Void> deleteUser(@RequestParam Long userId) {
+        userService.deleteUser(userId);
+        return Result.ok();
+    }
+
+    @PostMapping("/user/changeRole")
+    public Result<UserVO> changeRole(@RequestParam Long userId, @RequestParam String role) {
+        User user = userService.changeRole(userId, role);
+        return Result.ok(UserVO.of(user));
     }
 }
