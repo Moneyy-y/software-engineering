@@ -84,6 +84,9 @@ API 地址：http://localhost:8080（浏览器显示 404 属正常）
 baseUrl: 'http://localhost:8080'
 ```
 
+> ⚠️ **真机调试**：手机扫码后无法访问 `localhost`。需将 `baseUrl` 改为电脑的局域网 IP（如 `http://192.168.1.100:8080`），并确保手机与电脑在同一 WiFi 下。  
+> 查看本机 IP：命令行输入 `ipconfig`，找到 `IPv4 地址`。
+
 5. 点击 **编译** 运行
 
 ### 快速自测
