@@ -2,22 +2,30 @@
   <el-container class="layout">
     <el-aside width="220px" class="aside">
       <div class="logo">餐饮管理</div>
-      <el-menu :default-active="$route.path" router background-color="#304156" text-color="#bfcbd9" active-text-color="#409EFF">
-        <el-menu-item index="/dashboard"><el-icon><DataAnalysis /></el-icon>数据看板</el-menu-item>
-        <el-menu-item index="/shop"><el-icon><OfficeBuilding /></el-icon>食堂档口</el-menu-item>
-        <el-menu-item index="/dish"><el-icon><Goods /></el-icon>菜品管理</el-menu-item>
-        <el-menu-item index="/audit"><el-icon><DocumentChecked /></el-icon>评价审核</el-menu-item>
-        <el-menu-item index="/post-audit"><el-icon><ChatLineSquare /></el-icon>帖子审核</el-menu-item>
-        <el-menu-item index="/sensitive"><el-icon><Warning /></el-icon>敏感词库</el-menu-item>
-        <el-menu-item index="/feedback"><el-icon><ChatDotRound /></el-icon>反馈处理</el-menu-item>
-        <el-menu-item index="/redblack"><el-icon><Trophy /></el-icon>红黑榜</el-menu-item>
+      <el-menu
+        :default-active="$route.path"
+        router
+        background-color="#304156"
+        text-color="#bfcbd9"
+        active-text-color="#409EFF"
+      >
+        <el-menu-item
+          v-for="menu in userStore.menus"
+          :key="menu.menuId"
+          :index="menu.path"
+        >
+          <el-icon v-if="getIconComponent(menu.icon)">
+            <component :is="getIconComponent(menu.icon)" />
+          </el-icon>
+          <span>{{ menu.name }}</span>
+        </el-menu-item>
       </el-menu>
     </el-aside>
     <el-container>
       <el-header class="header">
         <span>{{ $route.meta.title }}</span>
         <div>
-          <span class="user">{{ userStore.nickname }}</span>
+          <span class="user">{{ userStore.nickname }}（{{ roleLabel }}）</span>
           <el-button type="danger" link @click="handleLogout">退出</el-button>
         </div>
       </el-header>
@@ -27,11 +35,24 @@
 </template>
 
 <script setup>
+import { computed, onMounted } from 'vue'
 import { useUserStore } from '../stores/user'
 import { useRouter } from 'vue-router'
+import { getIconComponent } from '../utils/iconMap'
 
 const userStore = useUserStore()
 const router = useRouter()
+
+const roleLabel = computed(() => {
+  const map = { admin: '管理员', auditor: '审核员' }
+  return map[userStore.role] || userStore.role
+})
+
+onMounted(() => {
+  if (userStore.token && userStore.menus.length === 0) {
+    userStore.fetchMenus()
+  }
+})
 
 function handleLogout() {
   userStore.logout()

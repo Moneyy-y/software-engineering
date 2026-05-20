@@ -3,6 +3,7 @@
   <text class="content">{{post.content}}</text>
   <view class="actions">
     <text bindtap="toggleLike">👍 {{post.likeCount}} {{post.liked ? '已赞' : '点赞'}}</text>
+    <text class="report-link" bindtap="goReport">举报</text>
   </view>
   <view class="comments">
     <text class="section">评论</text>

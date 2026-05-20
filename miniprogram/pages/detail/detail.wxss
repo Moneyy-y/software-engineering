@@ -8,3 +8,5 @@
 .section-title { font-weight: bold; font-size: 30rpx; display: block; margin-bottom: 16rpx; }
 .review-item { border-top: 1rpx solid #eee; padding: 20rpx 0; }
 .review-head { display: flex; justify-content: space-between; margin-bottom: 8rpx; }
+.review-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 8rpx; }
+.report-link { color: #f56c6c; font-size: 24rpx; }

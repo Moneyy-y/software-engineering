@@ -21,5 +21,10 @@ Page({
   async toggleLike() {
     await post('/api/post/like', null, { params: { postId: this.data.postId } })
     this.load()
+  },
+  goReport() {
+    wx.navigateTo({
+      url: `/pages/report/report?targetType=post&targetId=${this.data.postId}`
+    })
   }
 })

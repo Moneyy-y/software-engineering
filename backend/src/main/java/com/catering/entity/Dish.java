@@ -26,6 +26,10 @@ public class Dish {
     private Integer saleCount;
     private Integer status;
     private String boardStatus;
+    /** 榜单内排序，数值越小越靠前 */
+    private Integer boardSort;
+    /** 1=在榜单中隐藏 */
+    private Integer boardHidden;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
 }

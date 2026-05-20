@@ -51,18 +51,21 @@ public class BoardCalculationTask {
         redisTemplate.delete(BLACK_BOARD_KEY);
 
         for (Dish dish : dishes) {
+            if (isBoardHidden(dish)) {
+                continue;
+            }
             String boardStatus = dish.getBoardStatus();
+            double score = dish.getAvgScore() != null ? dish.getAvgScore().doubleValue() : 0;
             if ("red".equals(boardStatus)) {
-                redisTemplate.opsForZSet().add(RED_BOARD_KEY, String.valueOf(dish.getDishId()),
-                        dish.getAvgScore() != null ? dish.getAvgScore().doubleValue() : 0);
+                redisTemplate.opsForZSet().add(RED_BOARD_KEY, String.valueOf(dish.getDishId()), score);
             } else if ("black".equals(boardStatus)) {
-                redisTemplate.opsForZSet().add(BLACK_BOARD_KEY, String.valueOf(dish.getDishId()),
-                        dish.getAvgScore() != null ? dish.getAvgScore().doubleValue() : 0);
+                redisTemplate.opsForZSet().add(BLACK_BOARD_KEY, String.valueOf(dish.getDishId()), score);
             }
         }
 
         List<Dish> autoRed = dishes.stream()
-                .filter(d -> d.getAvgScore() != null && d.getAvgScore().compareTo(new BigDecimal("4.5")) >= 0
+                .filter(d -> !isBoardHidden(d)
+                        && d.getAvgScore() != null && d.getAvgScore().compareTo(new BigDecimal("4.5")) >= 0
                         && d.getSaleCount() != null && d.getSaleCount() > 100
                         && d.getBoardStatus() == null)
                 .sorted((a, b) -> b.getAvgScore().compareTo(a.getAvgScore()))
@@ -78,7 +81,8 @@ public class BoardCalculationTask {
         }
 
         List<Dish> autoBlack = dishes.stream()
-                .filter(d -> d.getAvgScore() != null && d.getAvgScore().compareTo(new BigDecimal("2.5")) < 0
+                .filter(d -> !isBoardHidden(d)
+                        && d.getAvgScore() != null && d.getAvgScore().compareTo(new BigDecimal("2.5")) < 0
                         && d.getReviewCount() != null && d.getReviewCount() >= 5
                         && d.getBoardStatus() == null)
                 .sorted((a, b) -> a.getAvgScore().compareTo(b.getAvgScore()))
@@ -97,7 +101,7 @@ public class BoardCalculationTask {
         if (redDishes != null && !redDishes.isEmpty()) {
             for (String dishId : redDishes) {
                 Dish dish = dishMapper.selectById(Long.valueOf(dishId));
-                if (dish != null && dish.getBoardStatus() == null) {
+                if (dish != null && !isBoardHidden(dish) && dish.getBoardStatus() == null) {
                     dish.setBoardStatus("red");
                     dishMapper.updateById(dish);
                 }
@@ -108,12 +112,16 @@ public class BoardCalculationTask {
         if (blackDishes != null && !blackDishes.isEmpty()) {
             for (String dishId : blackDishes) {
                 Dish dish = dishMapper.selectById(Long.valueOf(dishId));
-                if (dish != null && dish.getBoardStatus() == null) {
+                if (dish != null && !isBoardHidden(dish) && dish.getBoardStatus() == null) {
                     dish.setBoardStatus("black");
                     dishMapper.updateById(dish);
                 }
             }
         }
+    }
+
+    private boolean isBoardHidden(Dish dish) {
+        return dish.getBoardHidden() != null && dish.getBoardHidden() == 1;
     }
 
     @Scheduled(cron = "0 0 4 * * ?")

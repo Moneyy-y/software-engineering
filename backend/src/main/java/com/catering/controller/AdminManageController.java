@@ -9,6 +9,7 @@ import com.catering.entity.SensitiveWord;
 import com.catering.entity.Shop;
 import com.catering.entity.Stall;
 import com.catering.entity.User;
+import com.catering.service.BoardService;
 import com.catering.service.DishService;
 import com.catering.service.PostService;
 import com.catering.service.SensitiveWordService;
@@ -28,14 +29,16 @@ public class AdminManageController {
     private final DishService dishService;
     private final PostService postService;
     private final UserService userService;
+    private final BoardService boardService;
 
     public AdminManageController(SensitiveWordService sensitiveWordService,
                                  DishService dishService, PostService postService,
-                                 UserService userService) {
+                                 UserService userService, BoardService boardService) {
         this.sensitiveWordService = sensitiveWordService;
         this.dishService = dishService;
         this.postService = postService;
         this.userService = userService;
+        this.boardService = boardService;
     }
 
     @GetMapping("/sensitive-word/list")
@@ -80,11 +83,12 @@ public class AdminManageController {
         return Result.ok(dishService.saveStall(stall));
     }
 
-    @GetMapping("/post/pending")
-    public Result<PageResult<Map<String, Object>>> pendingPosts(
+    @GetMapping({"/post/pending", "/post/list"})
+    public Result<PageResult<Map<String, Object>>> listPosts(
+            @RequestParam(defaultValue = "pending") String status,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "20") int size) {
-        return Result.ok(postService.listPending(page, size));
+        return Result.ok(postService.listForAdmin(status, page, size));
     }
 
     @PostMapping("/post/approve")
@@ -136,16 +140,14 @@ public class AdminManageController {
     }
 
     @GetMapping("/board/list")
-    public Result<Map<String, Object>> getBoardList(
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "20") int size) {
-        return Result.ok(postService.getBoardList(page, size));
+    public Result<Map<String, Object>> getBoardList() {
+        return Result.ok(boardService.getAdminBoardList());
     }
 
     @PostMapping("/board/intervene")
     @AuditLog("红黑榜干预")
     public Result<Void> interveneBoard(@RequestParam Long dishId, @RequestParam String action) {
-        postService.interveneBoard(dishId, action);
+        boardService.interveneBoard(dishId, action);
         return Result.ok();
     }
 
@@ -156,7 +158,14 @@ public class AdminManageController {
         List<Integer> ids = (List<Integer>) params.get("dishIds");
         List<Long> dishIds = ids.stream().map(Long::valueOf).collect(Collectors.toList());
         String action = (String) params.get("action");
-        postService.batchInterveneBoard(dishIds, action);
+        boardService.batchInterveneBoard(dishIds, action);
+        return Result.ok();
+    }
+
+    @PostMapping("/board/calculate")
+    @AuditLog("手动计算红黑榜")
+    public Result<Void> calculateBoard() {
+        boardService.triggerCalculate();
         return Result.ok();
     }
 

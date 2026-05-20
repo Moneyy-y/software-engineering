@@ -1,0 +1,13 @@
+<view class="container card">
+  <view class="target">举报对象：{{targetLabel}}</view>
+  <picker mode="selector" range="{{reasons}}" bindchange="onReason">
+    <view class="picker">举报原因：{{reason}}</view>
+  </picker>
+  <textarea
+    class="desc"
+    placeholder="请补充说明（至少5字）"
+    maxlength="500"
+    bindinput="onDesc"
+  />
+  <button class="btn-primary" bindtap="submit">提交举报</button>
+</view>

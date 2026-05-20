@@ -70,6 +70,8 @@ CREATE TABLE IF NOT EXISTS `dish` (
   `sale_count` INT DEFAULT 0,
   `status` TINYINT DEFAULT 1,
   `board_status` VARCHAR(20) DEFAULT NULL COMMENT 'red上榜/red_remove黑榜移除/black上榜/black_remove红榜移除',
+  `board_sort` INT DEFAULT NULL COMMENT '榜单内排序，数值越小越靠前',
+  `board_hidden` TINYINT DEFAULT 0 COMMENT '1=在榜单中隐藏',
   `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP,
   `update_time` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`dish_id`),

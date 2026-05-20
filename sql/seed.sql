@@ -78,7 +78,16 @@ INSERT INTO `sensitive_word` (`content`, `category`) VALUES
 -- 论坛帖子
 INSERT INTO `post` (`user_id`, `title`, `content`, `zone`, `audit_status`, `like_count`) VALUES
 (2, '第一食堂必吃榜', '强烈推荐牛肉拉面和宫保鸡丁！', 'recommend', 'approved', 15),
-(3, '避雷指南', '南门炸鸡店最近品质下降', 'warning', 'approved', 8);
+(3, '避雷指南', '南门炸鸡店最近品质下降', 'warning', 'approved', 8),
+(2, '求推荐低卡午餐', '想减肥，食堂里有哪些清淡的？', 'recommend', 'pending', 0),
+(3, '疑似广告帖', '加微信xxxx领优惠券', 'general', 'pending', 0);
+
+-- 举报记录（post_id / review_id 对应上文数据）
+INSERT INTO `report` (`user_id`, `target_type`, `target_id`, `reason`, `description`, `status`, `handler_id`, `handle_result`, `handle_time`) VALUES
+(2, 'post', 2, '虚假信息', '内容与事实不符，存在误导', 'pending', NULL, NULL, NULL),
+(3, 'review', 1, '辱骂谩骂', '评价含不当人身攻击用语', 'pending', NULL, NULL, NULL),
+(2, 'post', 1, '广告 spam', '疑似商业推广内容', 'approved', 1, '已核实并下架处理', NOW()),
+(3, 'review', 2, '其他', '用户误举报，属正常评价', 'rejected', 1, '驳回举报', NOW());
 
 -- 菜单
 INSERT INTO `menu` (`menu_id`, `name`, `path`, `icon`, `parent_id`, `sort_order`, `roles`, `status`) VALUES 
@@ -91,13 +100,15 @@ INSERT INTO `menu` (`menu_id`, `name`, `path`, `icon`, `parent_id`, `sort_order`
 (7, '反馈处理', '/feedback', 'ChatDotSquare', 0, 7, '', 1), 
 (8, '红黑榜', '/redblack', 'Trophy', 0, 8, '', 1), 
 (9, '举报管理', '/report', 'Warning', 0, 9, '', 1), 
-(10, '权限管理', '/permission', 'Lock', 0, 10, '', 1);
+(10, '权限管理', '/permission', 'Lock', 0, 10, '', 1),
+(11, '用户管理', '/user-manage', 'User', 0, 11, '', 1);
 
 -- 角色-菜单分配
--- admin角色分配所有10个菜单
+-- admin角色分配所有11个菜单
 INSERT INTO `role_menu` (`role`, `menu_id`) VALUES 
 ('admin', 1), ('admin', 2), ('admin', 3), ('admin', 4), ('admin', 5), 
-('admin', 6), ('admin', 7), ('admin', 8), ('admin', 9), ('admin', 10);
+('admin', 6), ('admin', 7), ('admin', 8), ('admin', 9), ('admin', 10),
+('admin', 11);
 
 -- auditor角色分配：看板、评价审核、帖子审核、敏感词库、举报管理（共5个）
 INSERT INTO `role_menu` (`role`, `menu_id`) VALUES 

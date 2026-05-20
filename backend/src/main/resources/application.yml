@@ -22,7 +22,7 @@ jwt:
   expiration-ms: 7200000
 
 file:
-  upload-dir: ./uploads
+  upload-dir: ${user.dir}/uploads
 
 aes:
   secret: catering-aes-key-16b

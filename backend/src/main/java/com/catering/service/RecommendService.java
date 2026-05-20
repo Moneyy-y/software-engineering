@@ -21,16 +21,18 @@ public class RecommendService {
     private final UserBehaviorMapper behaviorMapper;
     private final ReviewMapper reviewMapper;
     private final UserMapper userMapper;
+    private final BoardService boardService;
 
     public RecommendService(DishMapper dishMapper, StallMapper stallMapper, ShopMapper shopMapper,
                             UserBehaviorMapper behaviorMapper, ReviewMapper reviewMapper,
-                            UserMapper userMapper) {
+                            UserMapper userMapper, BoardService boardService) {
         this.dishMapper = dishMapper;
         this.stallMapper = stallMapper;
         this.shopMapper = shopMapper;
         this.behaviorMapper = behaviorMapper;
         this.reviewMapper = reviewMapper;
         this.userMapper = userMapper;
+        this.boardService = boardService;
     }
 
     public void addToRedList(Long dishId) {
@@ -227,36 +229,6 @@ public class RecommendService {
     }
 
     public Map<String, List<DishVO>> redBlackBoard() {
-        List<Dish> dishes = dishMapper.selectList(new LambdaQueryWrapper<Dish>().eq(Dish::getStatus, 1));
-        List<DishVO> all = dishes.stream().map(this::toSimpleVO).collect(Collectors.toList());
-
-        List<DishVO> red = all.stream()
-                .filter(d -> d.getAvgScore() != null && d.getAvgScore().compareTo(new BigDecimal("4.5")) >= 0
-                        && d.getSaleCount() != null && d.getSaleCount() > 100)
-                .sorted((a, b) -> b.getAvgScore().compareTo(a.getAvgScore()))
-                .limit(10).collect(Collectors.toList());
-
-        List<DishVO> black = all.stream()
-                .filter(d -> d.getAvgScore() != null && d.getAvgScore().compareTo(new BigDecimal("2.5")) < 0
-                        && d.getReviewCount() != null && d.getReviewCount() >= 5)
-                .sorted(Comparator.comparing(DishVO::getAvgScore))
-                .limit(10).collect(Collectors.toList());
-
-        Map<String, List<DishVO>> map = new HashMap<>();
-        map.put("red", red);
-        map.put("black", black);
-        return map;
-    }
-
-    private DishVO toSimpleVO(Dish dish) {
-        DishVO vo = new DishVO();
-        vo.setDishId(dish.getDishId());
-        vo.setName(dish.getName());
-        vo.setPrice(dish.getPrice());
-        vo.setCoverImage(dish.getCoverImage());
-        vo.setAvgScore(dish.getAvgScore());
-        vo.setSaleCount(dish.getSaleCount());
-        vo.setReviewCount(dish.getReviewCount());
-        return vo;
+        return boardService.getPublicRedBlack();
     }
 }

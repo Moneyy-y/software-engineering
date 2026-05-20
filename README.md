@@ -29,7 +29,7 @@
 
 ## 推荐运行方式（IDEA + 图形界面，少敲命令）
 
-适合本机已安装 **MySQL、Redis**，且数据库已导入 `schema.sql`、`seed.sql` 的情况。
+适合本机已安装 **MySQL、Redis**，且数据库已导入 `schema.sql`、`seed.sql`、`migration_board_manage.sql` 、`migration_report_seed.sql`情况。
 
 ### 运行前确认
 
@@ -137,7 +137,7 @@ npm run dev
 ### 方式 B：不用 Docker（本机 MySQL + Redis）
 
 1. 安装并启动 MySQL、Redis
-2. 在 MySQL Workbench 执行 `sql/schema.sql`、`sql/seed.sql`
+2. 在 MySQL Workbench 执行 `sql/schema.sql`、`sql/seed.sql`、`migration_board_manage.sql` 、`migration_report_seed.sql`
 3. 若不用默认账号，修改 `application-dev.yml` 中的 `username`、`password`
 4. 按「推荐运行方式」或「方式 A」第 2～4 步启动三端
 

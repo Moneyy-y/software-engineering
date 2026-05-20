@@ -121,9 +121,15 @@ public class PostService {
     }
 
     public PageResult<Map<String, Object>> listPending(int page, int size) {
+        return listForAdmin("pending", page, size);
+    }
+
+    public PageResult<Map<String, Object>> listForAdmin(String status, int page, int size) {
         LambdaQueryWrapper<Post> wrapper = new LambdaQueryWrapper<Post>()
-                .eq(Post::getAuditStatus, "pending")
                 .orderByDesc(Post::getCreateTime);
+        if (StringUtils.hasText(status) && !"all".equals(status)) {
+            wrapper.eq(Post::getAuditStatus, status);
+        }
         long total = postMapper.selectCount(wrapper);
         List<Post> list = postMapper.selectList(wrapper.last("LIMIT " + (page - 1) * size + "," + size));
         List<Map<String, Object>> records = list.stream().map(p -> {
@@ -176,63 +182,6 @@ public class PostService {
         }
     }
 
-    public Map<String, Object> getBoardList(int page, int size) {
-        List<Dish> allDishes = dishMapper.selectList(new LambdaQueryWrapper<Dish>()
-                .eq(Dish::getStatus, 1));
-        List<Map<String, Object>> redList = new ArrayList<>();
-        List<Map<String, Object>> blackList = new ArrayList<>();
-        for (Dish dish : allDishes) {
-            Map<String, Object> item = new HashMap<>();
-            item.put("dishId", dish.getDishId());
-            item.put("name", dish.getName());
-            item.put("avgScore", dish.getAvgScore());
-            item.put("saleCount", dish.getSaleCount());
-            item.put("boardStatus", dish.getBoardStatus());
-            if ("red".equals(dish.getBoardStatus())) {
-                redList.add(item);
-            } else if ("black".equals(dish.getBoardStatus())) {
-                blackList.add(item);
-            }
-        }
-        Map<String, Object> result = new HashMap<>();
-        result.put("redList", redList);
-        result.put("blackList", blackList);
-        return result;
-    }
-
-    public void interveneBoard(Long dishId, String action) {
-        Dish dish = dishMapper.selectById(dishId);
-        if (dish == null) {
-            throw new BusinessException("菜品不存在");
-        }
-        switch (action) {
-            case "add_red":
-                dish.setBoardStatus("red");
-                break;
-            case "add_black":
-                dish.setBoardStatus("black");
-                break;
-            case "remove_red":
-                dish.setBoardStatus("red_remove");
-                break;
-            case "remove_black":
-                dish.setBoardStatus("black_remove");
-                break;
-            case "cancel":
-                dish.setBoardStatus(null);
-                break;
-            default:
-                throw new BusinessException("无效的操作");
-        }
-        dishMapper.updateById(dish);
-    }
-
-    public void batchInterveneBoard(List<Long> dishIds, String action) {
-        for (Long dishId : dishIds) {
-            interveneBoard(dishId, action);
-        }
-    }
-
     private String likeKey(Long postId) {
         return "post:like:" + postId;
     }
@@ -246,6 +195,7 @@ public class PostService {
         m.put("likeCount", p.getLikeCount());
         m.put("commentCount", p.getCommentCount());
         m.put("auditStatus", p.getAuditStatus());
+        m.put("rejectReason", p.getRejectReason());
         m.put("createTime", p.getCreateTime());
         return m;
     }

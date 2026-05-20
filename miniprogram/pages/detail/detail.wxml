@@ -26,7 +26,10 @@
         <text class="score">★ {{item.score}}</text>
       </view>
       <text>{{item.content}}</text>
-      <text class="text-muted">{{item.createTime}}</text>
+      <view class="review-foot">
+        <text class="text-muted">{{item.createTime}}</text>
+        <text class="report-link" bindtap="goReport" data-id="{{item.reviewId}}">举报</text>
+      </view>
     </view>
     <view wx:if="{{!dish.reviews.length}}" class="text-muted">暂无评价</view>
   </view>

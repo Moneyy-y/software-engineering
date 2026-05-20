@@ -28,5 +28,12 @@ Page({
   },
   goReview() {
     wx.navigateTo({ url: `/pages/review/review?dishId=${this.data.id}` })
+  },
+  goReport(e) {
+    const id = e.currentTarget.dataset.id
+    if (!id) return
+    wx.navigateTo({
+      url: `/pages/report/report?targetType=review&targetId=${id}`
+    })
   }
 })

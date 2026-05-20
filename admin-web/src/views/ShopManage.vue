@@ -7,6 +7,12 @@
           <el-button type="primary" size="small" style="float:right" @click="openShop()">新增</el-button>
         </template>
         <el-table :data="shops" highlight-current-row @current-change="onShopSelect">
+          <el-table-column label="Logo" width="70">
+            <template #default="{ row }">
+              <el-avatar v-if="row.logo" :src="row.logo" size="small" />
+              <span v-else style="color:#ccc">无</span>
+            </template>
+          </el-table-column>
           <el-table-column prop="name" label="名称" />
           <el-table-column prop="type" label="类型" width="80">
             <template #default="{ row }">{{ row.type === 0 ? '食堂' : '商铺' }}</template>
@@ -37,11 +43,27 @@
       </el-card>
     </el-col>
   </el-row>
-  <el-dialog v-model="shopVisible" title="食堂/商铺" width="480px">
+  <el-dialog v-model="shopVisible" title="食堂/商铺" width="520px">
     <el-form :model="shopForm" label-width="80px">
       <el-form-item label="名称"><el-input v-model="shopForm.name" /></el-form-item>
       <el-form-item label="类型">
         <el-select v-model="shopForm.type"><el-option :value="0" label="食堂" /><el-option :value="1" label="周边商铺" /></el-select>
+      </el-form-item>
+      <el-form-item label="Logo">
+        <div class="upload-wrapper">
+          <el-avatar v-if="shopForm.logo" :src="shopForm.logo" :size="80" shape="square" style="margin-right:12px" />
+          <el-upload
+            :show-file-list="false"
+            :before-upload="beforeShopLogoUpload"
+            :http-request="uploadShopLogo"
+            accept="image/*"
+          >
+            <el-button type="primary" size="small" :loading="shopLogoUploading">
+              {{ shopForm.logo ? '更换Logo' : '上传Logo' }}
+            </el-button>
+          </el-upload>
+          <el-button v-if="shopForm.logo" size="small" @click="shopForm.logo = ''" style="margin-left:8px">移除</el-button>
+        </div>
       </el-form-item>
       <el-form-item label="地址"><el-input v-model="shopForm.address" /></el-form-item>
       <el-form-item label="经度"><el-input v-model="shopForm.lng" /></el-form-item>
@@ -76,6 +98,7 @@ const shopVisible = ref(false)
 const stallVisible = ref(false)
 const shopForm = ref({})
 const stallForm = ref({})
+const shopLogoUploading = ref(false)
 
 onMounted(loadShops)
 
@@ -98,6 +121,37 @@ function openShop(row) {
   shopVisible.value = true
 }
 
+function beforeShopLogoUpload(file) {
+  const isImage = file.type.startsWith('image/')
+  if (!isImage) {
+    ElMessage.error('只能上传图片文件')
+    return false
+  }
+  const isLt5M = file.size / 1024 / 1024 < 5
+  if (!isLt5M) {
+    ElMessage.error('图片大小不能超过 5MB')
+    return false
+  }
+  return true
+}
+
+async function uploadShopLogo(options) {
+  shopLogoUploading.value = true
+  try {
+    const formData = new FormData()
+    formData.append('file', options.file)
+    const data = await request.post('/api/file/upload', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    })
+    shopForm.value.logo = data.url
+    ElMessage.success('Logo 上传成功')
+  } catch {
+    ElMessage.error('Logo 上传失败')
+  } finally {
+    shopLogoUploading.value = false
+  }
+}
+
 async function saveShop() {
   await request.post('/api/admin/shop/save', shopForm.value)
   shopVisible.value = false
@@ -117,3 +171,7 @@ async function saveStall() {
   loadStalls()
 }
 </script>
+
+<style scoped>
+.upload-wrapper { display: flex; align-items: center; }
+</style>

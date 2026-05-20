@@ -33,7 +33,7 @@ public class ReportController {
 
     @GetMapping("/list")
     public Result<List<Report>> getReports(@RequestParam(defaultValue = "pending") String status) {
-        return Result.ok(reportService.getReportsByStatus(status));
+        return Result.ok(reportService.listReports(status));
     }
 
     @GetMapping("/my")

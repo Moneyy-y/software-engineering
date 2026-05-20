@@ -1,6 +1,7 @@
 .title { font-size: 34rpx; font-weight: bold; display: block; margin-bottom: 16rpx; }
 .content { display: block; color: #666; margin-bottom: 24rpx; }
-.actions { margin-bottom: 24rpx; color: #409EFF; }
+.actions { margin-bottom: 24rpx; color: #409EFF; display: flex; gap: 32rpx; }
+.report-link { color: #f56c6c; font-size: 26rpx; }
 .section { font-weight: bold; display: block; margin-bottom: 16rpx; }
 .comment { padding: 16rpx 0; border-top: 1rpx solid #eee; }
 .reply { display: flex; gap: 16rpx; margin-top: 24rpx; }
