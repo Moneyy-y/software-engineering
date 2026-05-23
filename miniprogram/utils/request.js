@@ -12,12 +12,25 @@ function request(url, method = 'GET', data = {}) {
         'Authorization': token ? `Bearer ${token}` : ''
       },
       success(res) {
-        const body = res.data
-        if (body.success) {
-          resolve(body.data)
-        } else {
-          wx.showToast({ title: body.message || '请求失败', icon: 'none' })
-          reject(body)
+        try {
+          const body = res.data
+          if (!body || typeof body !== 'object') {
+            reject({ message: '响应格式错误' })
+            return
+          }
+          if (res.statusCode === 401) {
+            wx.showToast({ title: body.message || '请先登录', icon: 'none' })
+            reject(body)
+            return
+          }
+          if (body.success) {
+            resolve(body.data)
+          } else {
+            wx.showToast({ title: body.message || '请求失败', icon: 'none' })
+            reject(body)
+          }
+        } catch (err) {
+          reject({ message: (err && err.message) || '解析响应失败' })
         }
       },
       fail(err) {
@@ -36,4 +49,18 @@ function post(url, data) {
   return request(url, 'POST', data)
 }
 
-module.exports = { request, get: (url, data) => request(url, 'GET', data), post }
+function put(url, data) {
+  return request(url, 'PUT', data || {})
+}
+
+function del(url, data) {
+  return request(url, 'DELETE', data || {})
+}
+
+module.exports = {
+  request,
+  get: (url, data) => request(url, 'GET', data),
+  post,
+  put,
+  del
+}

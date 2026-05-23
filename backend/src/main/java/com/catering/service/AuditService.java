@@ -23,13 +23,18 @@ public class AuditService {
     private final DishMapper dishMapper;
     private final ReviewService reviewService;
     private final SensitiveWordService sensitiveWordService;
+    private final MessageService messageService;
+    private final com.catering.util.AesUtil aesUtil;
 
     public AuditService(ReviewMapper reviewMapper, DishMapper dishMapper,
-                        ReviewService reviewService, SensitiveWordService sensitiveWordService) {
+                        ReviewService reviewService, SensitiveWordService sensitiveWordService,
+                        MessageService messageService, com.catering.util.AesUtil aesUtil) {
         this.reviewMapper = reviewMapper;
         this.dishMapper = dishMapper;
         this.reviewService = reviewService;
         this.sensitiveWordService = sensitiveWordService;
+        this.messageService = messageService;
+        this.aesUtil = aesUtil;
     }
 
     public PageResult<AuditReviewVO> listPending(String status, int page, int size) {
@@ -69,6 +74,7 @@ public class AuditService {
         review.setAuditTime(LocalDateTime.now());
         reviewMapper.updateById(review);
         reviewService.updateDishAvgScore(review.getDishId());
+        notifyReviewAudit(review, true, null);
     }
 
     public void rejectReview(Long reviewId, String reason) {
@@ -79,6 +85,25 @@ public class AuditService {
         review.setAuditorId(UserContext.getUserId());
         review.setAuditTime(LocalDateTime.now());
         reviewMapper.updateById(review);
+        reviewService.clearReviewLimit(review.getUserId(), review.getDishId());
+        notifyReviewAudit(review, false, reason);
+    }
+
+    private void notifyReviewAudit(Review review, boolean passed, String reason) {
+        Long userId = aesUtil.decryptUserId(review.getUserId());
+        if (userId == null) return;
+        Dish dish = dishMapper.selectById(review.getDishId());
+        String dishName = dish != null ? dish.getName() : "菜品";
+        if (passed) {
+            messageService.sendMessage(userId, "评价审核通过",
+                    "您对「" + dishName + "」的评价已通过审核，现已公开展示。", "review_approve",
+                    "review", review.getReviewId(), review.getDishId());
+        } else {
+            String detail = StringUtils.hasText(reason) ? reason : "请修改后重新提交";
+            messageService.sendMessage(userId, "评价审核未通过",
+                    "您对「" + dishName + "」的评价未通过：" + detail, "review_reject",
+                    "review", review.getReviewId(), review.getDishId());
+        }
     }
 
     public void batchPass(List<Long> reviewIds) {

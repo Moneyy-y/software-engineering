@@ -1,16 +1,28 @@
 const { post } = require('../../utils/request')
 
+const TYPE_OPTIONS = [
+  { value: 'hygiene', label: '卫生' },
+  { value: 'price', label: '价格' },
+  { value: 'service', label: '服务' },
+  { value: 'other', label: '其他' }
+]
+
 Page({
   data: {
-    types: ['hygiene', 'price', 'service', 'other'],
-    typeLabels: { hygiene: '卫生', price: '价格', service: '服务', other: '其他' },
+    typeLabels: TYPE_OPTIONS.map((o) => o.label),
+    typeIndex: 3,
     type: 'other',
     typeLabel: '其他',
     description: ''
   },
   onType(e) {
-    const type = this.data.types[e.detail.value]
-    this.setData({ type, typeLabel: this.data.typeLabels[type] })
+    const idx = Number(e.detail.value)
+    const opt = TYPE_OPTIONS[idx]
+    this.setData({
+      typeIndex: idx,
+      type: opt.value,
+      typeLabel: opt.label
+    })
   },
   onDesc(e) { this.setData({ description: e.detail.value }) },
   async submit() {

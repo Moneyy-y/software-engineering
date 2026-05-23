@@ -1,3 +1,4 @@
+.resubmit-tip { background: #fdf6ec; color: #e6a23c; padding: 16rpx 20rpx; border-radius: 8rpx; margin-bottom: 16rpx; font-size: 24rpx; }
 .label { font-weight: bold; display: block; margin: 20rpx 0; }
 .stars { font-size: 56rpx; color: #ddd; }
 .star.active { color: #ff9900; }
@@ -6,4 +7,5 @@ textarea { width: 100%; height: 200rpx; background: #f5f7fa; padding: 20rpx; bor
 .thumb { width: 160rpx; height: 160rpx; border-radius: 8rpx; }
 .add-img { width: 160rpx; height: 160rpx; background: #f5f7fa; display: flex; align-items: center; justify-content: center; font-size: 48rpx; color: #999; border-radius: 8rpx; }
 .anon { margin: 24rpx 0; display: flex; align-items: center; gap: 16rpx; }
-.btn-primary { margin-top: 40rpx; }
+.actions { display: flex; justify-content: space-between; align-items: center; margin-top: 40rpx; gap: 20rpx; }
+.actions .btn-primary { flex: 1; margin-top: 0; }

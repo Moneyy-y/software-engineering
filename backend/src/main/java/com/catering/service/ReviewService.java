@@ -55,27 +55,51 @@ public class ReviewService {
         String hit = sensitiveWordService.findHit(dto.getContent());
         if (hit != null) throw new BusinessException(2001, "评价内容包含敏感词: " + hit);
 
-        String limitKey = "review:limit:" + userId + ":" + dto.getDishId();
-        if (Boolean.TRUE.equals(redisTemplate.hasKey(limitKey))) {
-            throw new BusinessException(2001, "24小时内已对同一菜品评价");
-        }
+        String encUserId = aesUtil.encryptUserId(userId);
+        String limitKeyEnc = "review:limit:" + encUserId + ":" + dto.getDishId();
+        String limitKeyLegacy = "review:limit:" + userId + ":" + dto.getDishId();
 
         Dish dish = dishMapper.selectById(dto.getDishId());
         if (dish == null || dish.getStatus() != 1) throw new BusinessException("菜品不存在或已下架");
         Stall stall = stallMapper.selectById(dish.getStallId());
 
-        Review review = new Review();
-        review.setUserId(aesUtil.encryptUserId(userId));
-        review.setDishId(dto.getDishId());
-        review.setShopId(stall.getShopId());
-        review.setScore(dto.getScore());
-        review.setContent(dto.getContent());
-        review.setImages(dto.getImages() != null ? JSON.toJSONString(dto.getImages()) : "[]");
-        review.setIsAnonymous(dto.getIsAnonymous() != null ? dto.getIsAnonymous() : 1);
-        review.setAuditStatus("pending");
-        reviewMapper.insert(review);
+        if (Boolean.TRUE.equals(dto.getResubmit())) {
+            if (!hasRejectedReview(userId, dto.getDishId())) {
+                throw new BusinessException(2001, "无被拒评价，无法重新提交");
+            }
+            redisTemplate.delete(limitKeyEnc);
+            redisTemplate.delete(limitKeyLegacy);
+            Review rejected = findLatestRejectedReview(userId, dto.getDishId());
+            if (rejected == null) {
+                throw new BusinessException(2001, "无被拒评价，无法重新提交");
+            }
+            rejected.setScore(dto.getScore());
+            rejected.setContent(dto.getContent());
+            rejected.setImages(dto.getImages() != null ? JSON.toJSONString(dto.getImages()) : "[]");
+            rejected.setIsAnonymous(dto.getIsAnonymous() != null ? dto.getIsAnonymous() : 1);
+            rejected.setAuditStatus("pending");
+            rejected.setRejectReason(null);
+            rejected.setAuditorId(null);
+            rejected.setAuditTime(null);
+            reviewMapper.updateById(rejected);
+        } else {
+            if (Boolean.TRUE.equals(redisTemplate.hasKey(limitKeyEnc))
+                    || Boolean.TRUE.equals(redisTemplate.hasKey(limitKeyLegacy))) {
+                throw new BusinessException(2001, "24小时内已对同一菜品评价");
+            }
+            Review review = new Review();
+            review.setUserId(aesUtil.encryptUserId(userId));
+            review.setDishId(dto.getDishId());
+            review.setShopId(stall.getShopId());
+            review.setScore(dto.getScore());
+            review.setContent(dto.getContent());
+            review.setImages(dto.getImages() != null ? JSON.toJSONString(dto.getImages()) : "[]");
+            review.setIsAnonymous(dto.getIsAnonymous() != null ? dto.getIsAnonymous() : 1);
+            review.setAuditStatus("pending");
+            reviewMapper.insert(review);
+        }
 
-        redisTemplate.opsForValue().set(limitKey, "1", 24, TimeUnit.HOURS);
+        redisTemplate.opsForValue().set(limitKeyEnc, "1", 24, TimeUnit.HOURS);
 
         UserBehavior behavior = new UserBehavior();
         behavior.setUserId(userId);
@@ -102,6 +126,32 @@ public class ReviewService {
             return vo;
         }).collect(Collectors.toList());
         return new PageResult<>(vos, total, page, size);
+    }
+
+    private boolean hasRejectedReview(Long userId, Long dishId) {
+        return findLatestRejectedReview(userId, dishId) != null;
+    }
+
+    private Review findLatestRejectedReview(Long userId, Long dishId) {
+        String enc = aesUtil.encryptUserId(userId);
+        String legacy = aesUtil.legacyEncryptUserId(userId);
+        return reviewMapper.selectOne(new LambdaQueryWrapper<Review>()
+                .eq(Review::getDishId, dishId)
+                .eq(Review::getAuditStatus, "rejected")
+                .and(w -> w.eq(Review::getUserId, enc).or().eq(Review::getUserId, legacy))
+                .orderByDesc(Review::getCreateTime)
+                .last("LIMIT 1"));
+    }
+
+    public void clearReviewLimit(String storedUserId, Long dishId) {
+        if (storedUserId != null) {
+            redisTemplate.delete("review:limit:" + storedUserId + ":" + dishId);
+        }
+        Long uid = aesUtil.decryptUserId(storedUserId);
+        if (uid != null) {
+            redisTemplate.delete("review:limit:" + uid + ":" + dishId);
+            redisTemplate.delete("review:limit:" + aesUtil.encryptUserId(uid) + ":" + dishId);
+        }
     }
 
     @Async("taskExecutor")

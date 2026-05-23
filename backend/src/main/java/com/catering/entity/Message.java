@@ -16,6 +16,9 @@ public class Message {
     private String title;
     private String content;
     private String type;
+    private String relatedType;
+    private Long relatedId;
+    private Long dishId;
     private Boolean isRead;
     private LocalDateTime createTime;
 }

@@ -1,0 +1,15 @@
+.loading { text-align: center; padding: 80rpx; color: #909399; }
+.error { text-align: center; padding: 40rpx; color: #f56c6c; }
+.error button { margin-top: 24rpx; }
+.toolbar { display: flex; justify-content: space-between; align-items: center; padding: 0 8rpx 16rpx; }
+.clear-btn { color: #f56c6c; font-size: 26rpx; }
+.head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12rpx; }
+.title { font-weight: bold; font-size: 30rpx; }
+.type-tag { font-size: 22rpx; color: #409EFF; background: #ecf5ff; padding: 4rpx 12rpx; border-radius: 8rpx; }
+.content { display: block; color: #666; line-height: 1.5; margin-bottom: 16rpx; }
+.foot { display: flex; justify-content: space-between; align-items: center; }
+.foot-actions { display: flex; align-items: center; gap: 24rpx; }
+.link-hint { color: #409EFF; font-size: 24rpx; }
+.del { color: #909399; font-size: 24rpx; }
+.msg-link:active { opacity: 0.85; }
+.empty { text-align: center; padding: 80rpx; color: #999; line-height: 1.6; }

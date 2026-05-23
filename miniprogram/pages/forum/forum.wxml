@@ -1,8 +1,95 @@
-<view class="container">
+<view class="main-tabs">
+  <view
+    class="tab {{activeMainTab === item.key ? 'active' : ''}}"
+    wx:for="{{mainTabs}}"
+    wx:key="key"
+    data-tab="{{item.key}}"
+    bindtap="switchMainTab"
+  >{{item.label}}</view>
+</view>
+
+<view class="zone-tabs" wx:if="{{activeMainTab === 'forum'}}">
+  <view
+    class="tab {{activeZone === item.key ? 'active' : ''}}"
+    wx:for="{{zones}}"
+    wx:key="key"
+    data-zone="{{item.key}}"
+    bindtap="switchZone"
+  >{{item.label}}</view>
+</view>
+
+<view class="container" wx:if="{{activeMainTab === 'forum'}}">
   <view class="card post" wx:for="{{posts}}" wx:key="postId" bindtap="goDetail" data-id="{{item.postId}}">
+    <view class="zone-tag">{{item.zone === 'recommend' ? '推荐' : item.zone === 'warning' ? '避雷' : '综合'}}</view>
     <text class="title">{{item.title}}</text>
     <text class="content">{{item.content}}</text>
+    <view class="img-row" wx:if="{{item.images.length}}">
+      <image wx:for="{{item.images}}" wx:for-item="img" wx:key="*this" src="{{img}}" mode="aspectFill" class="thumb" />
+    </view>
     <text class="text-muted">👍 {{item.likeCount}} · {{item.createTime}}</text>
   </view>
-  <view class="fab" bindtap="showPublish">+</view>
+  <view wx:if="{{!posts.length}}" class="empty">该分区暂无帖子</view>
+</view>
+
+<view class="container" wx:if="{{activeMainTab === 'my'}}">
+  <view class="card my-post" wx:for="{{myPosts}}" wx:key="postId">
+    <view class="head">
+      <text class="title">{{item.title}}</text>
+      <text class="status status-{{item.auditStatus}}">{{statusText[item.auditStatus]}}</text>
+    </view>
+    <text class="zone-label text-muted">{{zoneText[item.zone] || '综合区'}}</text>
+    <text class="content">{{item.content}}</text>
+    <text class="reject text-muted" wx:if="{{item.auditStatus === 'rejected' && item.rejectReason}}">拒绝原因：{{item.rejectReason}}</text>
+    <text class="time text-muted">{{item.createTime}}</text>
+    <view class="my-actions">
+      <button
+        wx:if="{{item.auditStatus === 'approved'}}"
+        size="mini"
+        data-id="{{item.postId}}"
+        bindtap="goDetail"
+      >查看帖子</button>
+      <button
+        wx:if="{{item.auditStatus === 'rejected'}}"
+        size="mini"
+        type="primary"
+        data-id="{{item.postId}}"
+        bindtap="resubmitMyPost"
+      >修改后重新提交</button>
+    </view>
+  </view>
+  <view wx:if="{{!myPosts.length}}" class="empty">暂无帖子，点击右下角发布</view>
+</view>
+
+<view class="fab" bindtap="openPublish">+</view>
+
+<view class="publish-mask" wx:if="{{showPublish}}" bindtap="closePublish">
+  <view class="publish-panel" catchtap="preventBubble">
+    <view class="panel-title">{{resubmitPostId ? '修改帖子' : '发布帖子'}}</view>
+    <view class="field">
+      <text class="label">标题</text>
+      <input placeholder="请输入标题" value="{{publishTitle}}" bindinput="onPublishTitle" />
+    </view>
+    <view class="field">
+      <text class="label">内容</text>
+      <textarea placeholder="分享你的用餐体验（至少5字）" value="{{publishContent}}" bindinput="onPublishContent" maxlength="500" />
+    </view>
+    <view class="field">
+      <text class="label">图片（最多3张）</text>
+      <view class="img-picker">
+        <image wx:for="{{publishImages}}" wx:key="*this" src="{{item}}" class="thumb" mode="aspectFill" data-index="{{index}}" bindtap="removePublishImage" />
+        <view class="add-img" bindtap="choosePublishImage" wx:if="{{publishImages.length < 3}}">+</view>
+      </view>
+      <text class="hint text-muted">点击 + 上传图片，点击已选图片可删除</text>
+    </view>
+    <view class="field">
+      <text class="label">分区</text>
+      <picker mode="selector" range="{{publishZones}}" range-key="label" value="{{publishZoneIndex}}" bindchange="onPublishZone">
+        <view class="picker-val">{{publishZones[publishZoneIndex].label}}</view>
+      </picker>
+    </view>
+    <view class="panel-actions">
+      <button bindtap="closePublish">取消</button>
+      <button type="primary" bindtap="submitPublish">{{resubmitPostId ? '重新提交' : '发布'}}</button>
+    </view>
+  </view>
 </view>

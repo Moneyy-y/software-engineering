@@ -11,7 +11,9 @@
     "pages/favorites/favorites",
     "pages/my-reviews/my-reviews",
     "pages/forum-detail/forum-detail",
-    "pages/report/report"
+    "pages/report/report",
+    "pages/browse-history/browse-history",
+    "pages/messages/messages"
   ],
   "window": {
     "navigationBarTitleText": "高校餐饮",

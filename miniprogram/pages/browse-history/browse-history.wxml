@@ -1,0 +1,14 @@
+<view class="container">
+  <view class="toolbar" wx:if="{{list.length}}">
+    <text class="text-muted">共 {{list.length}} 条</text>
+    <text class="clear-btn" bindtap="clearAll">清空</text>
+  </view>
+  <view class="card item" wx:for="{{list}}" wx:key="browseId" bindtap="goDetail" data-id="{{item.dishId}}">
+    <image class="cover" src="{{item.coverImage}}" mode="aspectFill" />
+    <view class="info">
+      <text class="name">{{item.dishName}}</text>
+      <text class="meta text-muted">¥{{item.price}} · {{item.createTime}}</text>
+    </view>
+  </view>
+  <view wx:if="{{!list.length}}" class="empty">暂无浏览记录，去首页看看菜品吧</view>
+</view>

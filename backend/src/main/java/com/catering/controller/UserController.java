@@ -3,9 +3,9 @@ package com.catering.controller;
 import com.catering.common.PageResult;
 import com.catering.common.Result;
 import com.catering.dto.LoginDTO;
-import com.catering.entity.Message;
-import com.catering.entity.UserBrowse;
+import com.catering.vo.MessageVO;
 import com.catering.service.BrowseService;
+import com.catering.vo.BrowseHistoryVO;
 import com.catering.service.MessageService;
 import com.catering.service.UserService;
 import com.catering.vo.LoginVO;
@@ -81,7 +81,7 @@ public class UserController {
     }
 
     @GetMapping("/browse/history")
-    public Result<List<UserBrowse>> getBrowseHistory() {
+    public Result<List<BrowseHistoryVO>> getBrowseHistory() {
         return Result.ok(browseService.getBrowseHistory(userService.getCurrentUserId()));
     }
 
@@ -92,7 +92,7 @@ public class UserController {
     }
 
     @GetMapping("/message/list")
-    public Result<List<Message>> getMessages() {
+    public Result<List<MessageVO>> getMessages() {
         return Result.ok(messageService.getMessages(userService.getCurrentUserId()));
     }
 

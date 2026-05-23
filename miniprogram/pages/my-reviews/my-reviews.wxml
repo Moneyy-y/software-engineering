@@ -1,12 +1,48 @@
-<view class="container">
+<view class="page-tabs">
+  <view
+    class="tab {{activeTab === item.key ? 'active' : ''}}"
+    wx:for="{{pageTabs}}"
+    wx:key="key"
+    data-tab="{{item.key}}"
+    bindtap="switchTab"
+  >{{item.label}}</view>
+</view>
+
+<view class="container" wx:if="{{activeTab === 'reviews'}}">
   <view class="card" wx:for="{{list}}" wx:key="reviewId">
     <view class="head">
       <text class="dish">{{item.dishName || '菜品'}}</text>
-      <text class="status">{{statusText[item.auditStatus]}}</text>
+      <text class="status status-{{item.auditStatus}}">{{statusText[item.auditStatus]}}</text>
     </view>
     <text class="score">★ {{item.score}}</text>
     <text class="content">{{item.content}}</text>
+    <text class="reject text-muted" wx:if="{{item.auditStatus === 'rejected' && item.rejectReason}}">拒绝原因：{{item.rejectReason}}</text>
     <text class="time text-muted">{{item.createTime}}</text>
+    <button
+      wx:if="{{item.auditStatus === 'rejected'}}"
+      class="resubmit-btn"
+      size="mini"
+      type="primary"
+      data-item="{{item}}"
+      bindtap="resubmit"
+    >修改后重新提交</button>
   </view>
   <view wx:if="{{!list.length}}" class="empty">暂无评价</view>
+</view>
+
+<view class="container" wx:if="{{activeTab === 'drafts'}}">
+  <view class="tip card text-muted">草稿保存在本机。进入对应菜品评价页时会自动恢复；也可在此继续编辑。</view>
+  <view class="card draft" wx:for="{{drafts}}" wx:key="key">
+    <view class="head">
+      <text class="dish">菜品 ID：{{item.dishId}}</text>
+      <text class="score">★ {{item.score}}</text>
+    </view>
+    <text class="preview">{{item.preview || '（无文字）'}}</text>
+    <text class="meta text-muted" wx:if="{{item.imageCount}}">含 {{item.imageCount}} 张图</text>
+    <view class="actions">
+      <button size="mini" type="primary" data-dish-id="{{item.dishId}}" bindtap="openDraft">继续编辑</button>
+      <button size="mini" data-key="{{item.key}}" bindtap="removeDraft">删除</button>
+    </view>
+  </view>
+  <view wx:if="{{!drafts.length}}" class="empty">暂无草稿。在评价页填写内容后点「保存草稿」即可</view>
 </view>

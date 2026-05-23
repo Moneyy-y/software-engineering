@@ -1,6 +1,16 @@
+.page-tabs { display: flex; background: #fff; padding: 16rpx 20rpx; gap: 16rpx; position: sticky; top: 0; z-index: 10; }
+.page-tabs .tab { flex: 1; text-align: center; padding: 12rpx 28rpx; border-radius: 32rpx; font-size: 26rpx; color: #666; background: #f5f7fa; }
+.page-tabs .tab.active { background: #409EFF; color: #fff; }
 .head { display: flex; justify-content: space-between; margin-bottom: 12rpx; }
 .dish { font-weight: bold; }
 .status { font-size: 24rpx; color: #409EFF; }
+.status-rejected { color: #f56c6c; }
+.status-approved { color: #67c23a; }
+.reject { display: block; margin: 8rpx 0; color: #f56c6c; }
+.resubmit-btn { margin-top: 16rpx; }
 .content { display: block; margin: 12rpx 0; color: #666; }
 .time { font-size: 24rpx; }
-.empty { text-align: center; padding: 80rpx; color: #999; }
+.empty { text-align: center; padding: 80rpx; color: #999; line-height: 1.6; }
+.tip { font-size: 24rpx; line-height: 1.5; margin-bottom: 20rpx; }
+.preview { display: block; color: #666; margin-bottom: 8rpx; }
+.actions { margin-top: 16rpx; display: flex; gap: 16rpx; }

@@ -33,8 +33,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -205,7 +207,10 @@ public class UserService {
         List<Review> list = reviewMapper.selectList(new LambdaQueryWrapper<Review>()
                 .and(w -> w.eq(Review::getUserId, enc).or().eq(Review::getUserId, legacy))
                 .orderByDesc(Review::getCreateTime));
-        return list.stream().map(r -> {
+        Set<Long> seenDishIds = new HashSet<>();
+        return list.stream()
+                .filter(r -> seenDishIds.add(r.getDishId()))
+                .map(r -> {
             ReviewVO vo = new ReviewVO();
             vo.setReviewId(r.getReviewId());
             vo.setDishId(r.getDishId());
@@ -214,6 +219,7 @@ public class UserService {
             vo.setImages(r.getImages());
             vo.setCreateTime(r.getCreateTime());
             vo.setAuditStatus(r.getAuditStatus());
+            vo.setRejectReason(r.getRejectReason());
             Dish dish = dishMapper.selectById(r.getDishId());
             if (dish != null) vo.setDishName(dish.getName());
             return vo;

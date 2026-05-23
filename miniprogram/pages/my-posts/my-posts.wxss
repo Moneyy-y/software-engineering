@@ -1,0 +1,11 @@
+.head { display: flex; justify-content: space-between; margin-bottom: 12rpx; }
+.title { font-weight: bold; flex: 1; margin-right: 16rpx; }
+.status { font-size: 24rpx; color: #409EFF; flex-shrink: 0; }
+.status-rejected { color: #f56c6c; }
+.status-approved { color: #67c23a; }
+.reject { display: block; margin: 8rpx 0; color: #f56c6c; }
+.resubmit-btn { margin-top: 16rpx; }
+.content { display: block; margin: 12rpx 0; color: #666; }
+.zone { font-size: 24rpx; display: block; margin-bottom: 8rpx; }
+.time { font-size: 24rpx; }
+.empty { text-align: center; padding: 80rpx; color: #999; }

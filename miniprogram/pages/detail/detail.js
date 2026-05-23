@@ -3,15 +3,41 @@ const { login } = require('../../utils/auth')
 const { baseUrl } = require('../../utils/config')
 
 Page({
-  data: { dish: null, id: null },
+  data: { dish: null, id: null, lat: null, lng: null },
   onLoad(options) {
     this.setData({ id: options.id })
-    login().then(() => this.loadDetail())
+    this.getLocation()
+    login().then(() => {
+      this.loadDetail()
+      this.recordBrowse()
+    })
+  },
+  getLocation() {
+    wx.getLocation({
+      type: 'gcj02',
+      success: (res) => this.setData({ lat: res.latitude, lng: res.longitude }),
+      fail: () => this.setData({ lat: 39.916527, lng: 116.397128 })
+    })
+  },
+  async recordBrowse() {
+    try {
+      await post('/api/user/browse', { params: { dishId: Number(this.data.id) } })
+    } catch (e) {
+      // 未登录或网络异常时不阻断详情页
+    }
   },
   async loadDetail() {
-    const dish = await get(`/api/dish/${this.data.id}`, { lat: 39.916527, lng: 116.397128 })
+    const params = {}
+    if (this.data.lat) {
+      params.lat = this.data.lat
+      params.lng = this.data.lng
+    }
+    const dish = await get(`/api/dish/${this.data.id}`, params)
     if (dish.images) {
-      dish.images = dish.images.map(img => img.startsWith('http') ? img : baseUrl + img)
+      dish.images = dish.images.map((img) => (img.startsWith('http') ? img : baseUrl + img))
+    }
+    if (dish.coverImage && !dish.coverImage.startsWith('http')) {
+      dish.coverImage = baseUrl + dish.coverImage
     }
     this.setData({ dish })
   },

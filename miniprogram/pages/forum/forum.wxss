@@ -1,3 +1,37 @@
-.post .title { font-weight: bold; font-size: 30rpx; display: block; margin-bottom: 12rpx; }
+.main-tabs { display: flex; background: #fff; padding: 16rpx 20rpx; gap: 16rpx; position: sticky; top: 0; z-index: 11; }
+.main-tabs .tab { flex: 1; text-align: center; padding: 12rpx 28rpx; border-radius: 32rpx; font-size: 28rpx; color: #666; background: #f5f7fa; }
+.main-tabs .tab.active { background: #409EFF; color: #fff; }
+.zone-tabs { display: flex; background: #fff; padding: 16rpx 20rpx; gap: 16rpx; position: sticky; top: 72rpx; z-index: 10; }
+.tab { padding: 12rpx 28rpx; border-radius: 32rpx; font-size: 26rpx; color: #666; background: #f5f7fa; }
+.tab.active { background: #409EFF; color: #fff; }
+.post { position: relative; }
+.zone-tag { position: absolute; right: 24rpx; top: 24rpx; font-size: 22rpx; color: #409EFF; }
+.post .title { font-weight: bold; font-size: 30rpx; display: block; margin-bottom: 12rpx; padding-right: 80rpx; }
 .post .content { display: block; margin-bottom: 12rpx; color: #666; }
-.fab { position: fixed; right: 40rpx; bottom: 80rpx; width: 100rpx; height: 100rpx; background: #409EFF; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 48rpx; }
+.img-row { display: flex; gap: 12rpx; margin-bottom: 12rpx; flex-wrap: wrap; }
+.thumb { width: 160rpx; height: 160rpx; border-radius: 8rpx; }
+.empty { text-align: center; padding: 80rpx; color: #999; }
+.fab { position: fixed; right: 40rpx; bottom: 80rpx; width: 100rpx; height: 100rpx; background: #409EFF; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 48rpx; z-index: 20; }
+.publish-mask { position: fixed; left: 0; right: 0; top: 0; bottom: 0; background: rgba(0,0,0,.45); z-index: 100; display: flex; align-items: flex-end; }
+.publish-panel { width: 100%; max-height: 85vh; background: #fff; border-radius: 24rpx 24rpx 0 0; padding: 32rpx; box-sizing: border-box; overflow-y: auto; }
+.panel-title { font-size: 34rpx; font-weight: bold; margin-bottom: 24rpx; }
+.field { margin-bottom: 24rpx; }
+.field .label { display: block; font-size: 26rpx; color: #666; margin-bottom: 12rpx; }
+.field input, .field textarea { width: 100%; background: #f5f7fa; border-radius: 12rpx; padding: 16rpx; box-sizing: border-box; }
+.field textarea { min-height: 160rpx; }
+.img-picker { display: flex; flex-wrap: wrap; gap: 16rpx; }
+.add-img { width: 160rpx; height: 160rpx; background: #f5f7fa; border-radius: 8rpx; display: flex; align-items: center; justify-content: center; font-size: 48rpx; color: #999; }
+.hint { font-size: 22rpx; display: block; margin-top: 8rpx; }
+.picker-val { padding: 16rpx; background: #f5f7fa; border-radius: 12rpx; }
+.panel-actions { display: flex; gap: 20rpx; margin-top: 16rpx; }
+.panel-actions button { flex: 1; }
+.my-post .head { display: flex; justify-content: space-between; margin-bottom: 12rpx; }
+.my-post .title { font-weight: bold; flex: 1; margin-right: 16rpx; }
+.my-post .status { font-size: 24rpx; color: #409EFF; flex-shrink: 0; }
+.my-post .status-rejected { color: #f56c6c; }
+.my-post .status-approved { color: #67c23a; }
+.my-post .reject { display: block; margin: 8rpx 0; color: #f56c6c; }
+.my-post .content { display: block; margin: 12rpx 0; color: #666; }
+.my-post .zone-label { font-size: 24rpx; display: block; margin-bottom: 8rpx; }
+.my-post .time { font-size: 24rpx; }
+.my-actions { margin-top: 16rpx; }

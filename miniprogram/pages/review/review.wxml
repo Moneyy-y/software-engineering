@@ -1,10 +1,11 @@
 <view class="container card">
+  <view class="resubmit-tip" wx:if="{{isResubmit}}">正在修改被拒评价，提交后将重新进入审核</view>
   <text class="label">评分</text>
   <view class="stars">
     <text wx:for="{{[1,2,3,4,5]}}" wx:key="*this" class="star {{score >= item ? 'active' : ''}}" bindtap="setScore" data-s="{{item}}">★</text>
   </view>
   <text class="label">评价内容（至少10字）</text>
-  <textarea placeholder="分享你的用餐体验..." bindinput="onContent" maxlength="500" />
+  <textarea placeholder="分享你的用餐体验..." value="{{content}}" bindinput="onContent" maxlength="500" />
   <text class="label">图片（最多9张）</text>
   <view class="images">
     <image wx:for="{{images}}" wx:key="*this" src="{{item}}" class="thumb" mode="aspectFill" />
@@ -13,5 +14,8 @@
   <view class="anon">
     <switch checked="{{anonymous}}" bindchange="onAnon" /> 匿名发布
   </view>
-  <button class="btn-primary" bindtap="submit">提交评价</button>
+  <view class="actions">
+    <button size="mini" bindtap="saveDraft">保存草稿</button>
+    <button class="btn-primary" bindtap="submit">提交评价</button>
+  </view>
 </view>

@@ -1,0 +1,21 @@
+<view class="container">
+  <view class="card" wx:for="{{list}}" wx:key="postId">
+    <view class="head">
+      <text class="title">{{item.title}}</text>
+      <text class="status status-{{item.auditStatus}}">{{statusText[item.auditStatus]}}</text>
+    </view>
+    <text class="zone text-muted">{{zoneText[item.zone] || '综合区'}}</text>
+    <text class="content">{{item.content}}</text>
+    <text class="reject text-muted" wx:if="{{item.auditStatus === 'rejected' && item.rejectReason}}">拒绝原因：{{item.rejectReason}}</text>
+    <text class="time text-muted">{{item.createTime}}</text>
+    <button
+      wx:if="{{item.auditStatus === 'rejected'}}"
+      class="resubmit-btn"
+      size="mini"
+      type="primary"
+      data-id="{{item.postId}}"
+      bindtap="resubmit"
+    >修改后重新提交</button>
+  </view>
+  <view wx:if="{{!list.length}}" class="empty">暂无帖子</view>
+</view>

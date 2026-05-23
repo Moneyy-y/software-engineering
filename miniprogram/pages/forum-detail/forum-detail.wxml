@@ -1,6 +1,9 @@
 <view class="container card" wx:if="{{post}}">
   <text class="title">{{post.title}}</text>
   <text class="content">{{post.content}}</text>
+  <view class="img-row" wx:if="{{post.images.length}}">
+    <image wx:for="{{post.images}}" wx:key="*this" src="{{item}}" mode="aspectFill" class="thumb" />
+  </view>
   <view class="actions">
     <text bindtap="toggleLike">👍 {{post.likeCount}} {{post.liked ? '已赞' : '点赞'}}</text>
     <text class="report-link" bindtap="goReport">举报</text>
@@ -8,11 +11,15 @@
   <view class="comments">
     <text class="section">评论</text>
     <view class="comment" wx:for="{{post.comments}}" wx:key="commentId">
-      <text>{{item.content}}</text>
+      <view class="comment-meta">
+        <text class="floor">{{item.floor}}楼</text>
+        <text class="time">{{item.createTime}}</text>
+      </view>
+      <text class="comment-content">{{item.content}}</text>
     </view>
   </view>
   <view class="reply">
-    <input placeholder="写评论..." bindinput="onComment" />
+    <input placeholder="写评论..." value="{{comment}}" bindinput="onComment" />
     <button size="mini" type="primary" bindtap="sendComment">发送</button>
   </view>
 </view>

@@ -1,5 +1,5 @@
 <view class="container card">
-  <picker mode="selector" range="{{types}}" bindchange="onType">
+  <picker mode="selector" range="{{typeLabels}}" value="{{typeIndex}}" bindchange="onType">
     <view class="picker">类型：{{typeLabel}}</view>
   </picker>
   <textarea placeholder="请描述问题（至少10字）" bindinput="onDesc" />

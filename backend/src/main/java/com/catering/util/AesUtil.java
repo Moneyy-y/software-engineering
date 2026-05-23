@@ -31,9 +31,37 @@ public class AesUtil {
         }
     }
 
+    public String decrypt(String cipherText) {
+        try {
+            Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+            cipher.init(Cipher.DECRYPT_MODE, keySpec());
+            byte[] decoded = Base64.getDecoder().decode(cipherText);
+            return new String(cipher.doFinal(decoded), StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            throw new RuntimeException("AES decrypt failed", e);
+        }
+    }
+
     public String encryptUserId(Long userId) {
         if (userId == null) return "";
         return encrypt(String.valueOf(userId));
+    }
+
+    /** 从评价表 user_id 字段解析真实用户 ID（兼容 enc_数字 与 AES） */
+    public Long decryptUserId(String stored) {
+        if (stored == null || stored.isEmpty()) return null;
+        if (stored.startsWith("enc_")) {
+            try {
+                return Long.parseLong(stored.substring(4));
+            } catch (NumberFormatException e) {
+                return null;
+            }
+        }
+        try {
+            return Long.parseLong(decrypt(stored));
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     /** 兼容 seed 数据中的 enc_1 格式 */

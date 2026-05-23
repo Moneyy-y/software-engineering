@@ -21,9 +21,11 @@ import java.util.stream.Collectors;
 public class FeedbackService {
 
     private final FeedbackMapper feedbackMapper;
+    private final MessageService messageService;
 
-    public FeedbackService(FeedbackMapper feedbackMapper) {
+    public FeedbackService(FeedbackMapper feedbackMapper, MessageService messageService) {
         this.feedbackMapper = feedbackMapper;
+        this.messageService = messageService;
     }
 
     public void submit(FeedbackSubmitDTO dto) {
@@ -68,6 +70,11 @@ public class FeedbackService {
         Feedback fb = get(id);
         fb.setReply(content);
         feedbackMapper.updateById(fb);
+        if (fb.getUserId() != null && StringUtils.hasText(content)) {
+            messageService.sendMessage(fb.getUserId(), "反馈已回复",
+                    "您的意见反馈收到回复：" + content, "feedback_reply",
+                    "feedback", fb.getFeedbackId(), null);
+        }
     }
 
     public void close(Long id) {
@@ -75,6 +82,11 @@ public class FeedbackService {
         fb.setStatus("resolved");
         fb.setResolveTime(LocalDateTime.now());
         feedbackMapper.updateById(fb);
+        if (fb.getUserId() != null && StringUtils.hasText(fb.getReply())) {
+            messageService.sendMessage(fb.getUserId(), "反馈已处理",
+                    "您的意见反馈已处理完成。", "feedback_resolved",
+                    "feedback", fb.getFeedbackId(), null);
+        }
     }
 
     private Feedback get(Long id) {

@@ -13,6 +13,7 @@ public class ReviewVO {
     private String userAvatar = "https://thirdwx.qlogo.cn/mmopen/vi_32/default.png";
     private LocalDateTime createTime;
     private String auditStatus;
+    private String rejectReason;
     private Long dishId;
     private String dishName;
 }

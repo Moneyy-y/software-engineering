@@ -4,6 +4,11 @@
     <text class="nickname">{{user.nickname || '未登录'}}</text>
   </view>
   <view class="card menu-item" bindtap="goFavorites">我的收藏</view>
+  <view class="card menu-item" bindtap="goBrowseHistory">浏览记录</view>
+  <view class="card menu-item" bindtap="goMessages">
+    消息中心
+    <text class="badge" wx:if="{{unreadCount > 0}}">{{unreadCount}}</text>
+  </view>
   <view class="card menu-item" bindtap="goMyReviews">我的评价</view>
   <view class="card menu-item" bindtap="goFeedback">意见反馈</view>
   <view class="card menu-item" bindtap="goForum">餐饮论坛</view>

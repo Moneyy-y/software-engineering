@@ -23,14 +23,41 @@ public class PostController {
         return Result.ok(postService.listApproved(zone));
     }
 
+    @GetMapping("/my")
+    public Result<List<Map<String, Object>>> myPosts() {
+        return Result.ok(postService.listMyPosts());
+    }
+
     @GetMapping("/{postId}")
     public Result<Map<String, Object>> detail(@PathVariable Long postId) {
         return Result.ok(postService.getDetail(postId));
     }
 
     @PostMapping("/publish")
-    public Result<Void> publish(@RequestBody Map<String, String> body) {
-        postService.publish(body.get("title"), body.get("content"), body.get("zone"));
+    @SuppressWarnings("unchecked")
+    public Result<Void> publish(@RequestBody Map<String, Object> body) {
+        List<String> images = null;
+        Object rawImages = body.get("images");
+        if (rawImages instanceof List) {
+            images = (List<String>) rawImages;
+        }
+        postService.publish((String) body.get("title"), (String) body.get("content"),
+                (String) body.get("zone"), images);
+        return Result.ok();
+    }
+
+    @PostMapping("/resubmit")
+    @SuppressWarnings("unchecked")
+    public Result<Void> resubmit(@RequestBody Map<String, Object> body) {
+        List<String> images = null;
+        Object rawImages = body.get("images");
+        if (rawImages instanceof List) {
+            images = (List<String>) rawImages;
+        }
+        Object postIdObj = body.get("postId");
+        Long postId = postIdObj instanceof Number ? ((Number) postIdObj).longValue() : Long.valueOf(String.valueOf(postIdObj));
+        postService.resubmitPost(postId, (String) body.get("title"), (String) body.get("content"),
+                (String) body.get("zone"), images);
         return Result.ok();
     }
 

@@ -29,18 +29,21 @@ public class PostService {
     private final DishMapper dishMapper;
     private final SensitiveWordService sensitiveWordService;
     private final StringRedisTemplate redisTemplate;
+    private final MessageService messageService;
 
     public PostService(PostMapper postMapper, CommentMapper commentMapper, DishMapper dishMapper,
                        SensitiveWordService sensitiveWordService,
-                       StringRedisTemplate redisTemplate) {
+                       StringRedisTemplate redisTemplate,
+                       MessageService messageService) {
         this.postMapper = postMapper;
         this.commentMapper = commentMapper;
         this.dishMapper = dishMapper;
         this.sensitiveWordService = sensitiveWordService;
         this.redisTemplate = redisTemplate;
+        this.messageService = messageService;
     }
 
-    public void publish(String title, String content, String zone) {
+    public void publish(String title, String content, String zone, List<String> images) {
         String hit = sensitiveWordService.findHit(title + content);
         if (hit != null) throw new BusinessException(2001, "内容包含敏感词: " + hit);
         Post post = new Post();
@@ -48,8 +51,51 @@ public class PostService {
         post.setTitle(title);
         post.setContent(content);
         post.setZone(zone != null ? zone : "general");
+        if (images != null && !images.isEmpty()) {
+            post.setImages(com.alibaba.fastjson.JSON.toJSONString(images));
+        } else {
+            post.setImages("[]");
+        }
         post.setAuditStatus("pending");
         postMapper.insert(post);
+        messageService.sendMessage(post.getUserId(), "帖子已提交审核",
+                "您的帖子「" + title + "」已提交，审核结果将在此通知。", "post_submit",
+                "post", post.getPostId(), null);
+    }
+
+    public List<Map<String, Object>> listMyPosts() {
+        Long userId = UserContext.getUserId();
+        return postMapper.selectList(new LambdaQueryWrapper<Post>()
+                        .eq(Post::getUserId, userId)
+                        .orderByDesc(Post::getCreateTime))
+                .stream().map(this::toMap).collect(Collectors.toList());
+    }
+
+    public void resubmitPost(Long postId, String title, String content, String zone, List<String> images) {
+        Long userId = UserContext.getUserId();
+        Post post = postMapper.selectById(postId);
+        if (post == null || !userId.equals(post.getUserId())) {
+            throw new BusinessException("帖子不存在");
+        }
+        if (!"rejected".equals(post.getAuditStatus())) {
+            throw new BusinessException(2001, "仅被拒帖子可重新提交");
+        }
+        String hit = sensitiveWordService.findHit(title + content);
+        if (hit != null) throw new BusinessException(2001, "内容包含敏感词: " + hit);
+        post.setTitle(title);
+        post.setContent(content);
+        post.setZone(zone != null ? zone : "general");
+        if (images != null && !images.isEmpty()) {
+            post.setImages(com.alibaba.fastjson.JSON.toJSONString(images));
+        } else {
+            post.setImages("[]");
+        }
+        post.setAuditStatus("pending");
+        post.setRejectReason(null);
+        postMapper.updateById(post);
+        messageService.sendMessage(userId, "帖子已重新提交",
+                "您的帖子「" + title + "」已修改并重新提交审核。", "post_submit",
+                "post", postId, null);
     }
 
     public List<Map<String, Object>> listApproved(String zone) {
@@ -75,15 +121,19 @@ public class PostService {
     }
 
     public List<Map<String, Object>> listComments(Long postId) {
-        return commentMapper.selectList(new LambdaQueryWrapper<Comment>()
-                .eq(Comment::getPostId, postId).orderByDesc(Comment::getCreateTime))
-                .stream().map(c -> {
-                    Map<String, Object> m = new HashMap<>();
-                    m.put("commentId", c.getCommentId());
-                    m.put("content", c.getContent());
-                    m.put("createTime", c.getCreateTime());
-                    return m;
-                }).collect(Collectors.toList());
+        List<Comment> comments = commentMapper.selectList(new LambdaQueryWrapper<Comment>()
+                .eq(Comment::getPostId, postId).orderByAsc(Comment::getCreateTime));
+        List<Map<String, Object>> result = new ArrayList<>();
+        int floor = 1;
+        for (Comment c : comments) {
+            Map<String, Object> m = new HashMap<>();
+            m.put("commentId", c.getCommentId());
+            m.put("content", c.getContent());
+            m.put("createTime", c.getCreateTime());
+            m.put("floor", floor++);
+            result.add(m);
+        }
+        return result;
     }
 
     public void addComment(Long postId, String content) {
@@ -145,6 +195,7 @@ public class PostService {
         if (post != null) {
             post.setAuditStatus("approved");
             postMapper.updateById(post);
+            notifyPostAudit(post, true, null);
         }
     }
 
@@ -160,6 +211,7 @@ public class PostService {
             post.setAuditStatus("rejected");
             post.setRejectReason(reason);
             postMapper.updateById(post);
+            notifyPostAudit(post, false, reason);
         }
     }
 
@@ -182,6 +234,20 @@ public class PostService {
         }
     }
 
+    private void notifyPostAudit(Post post, boolean passed, String reason) {
+        if (post.getUserId() == null) return;
+        if (passed) {
+            messageService.sendMessage(post.getUserId(), "帖子审核通过",
+                    "您的帖子「" + post.getTitle() + "」已通过审核，现已在论坛展示。", "post_approve",
+                    "post", post.getPostId(), null);
+        } else {
+            String detail = StringUtils.hasText(reason) ? reason : "请前往论坛「我的帖子」修改后重新提交";
+            messageService.sendMessage(post.getUserId(), "帖子审核未通过",
+                    "您的帖子「" + post.getTitle() + "」未通过：" + detail, "post_reject",
+                    "post", post.getPostId(), null);
+        }
+    }
+
     private String likeKey(Long postId) {
         return "post:like:" + postId;
     }
@@ -191,6 +257,11 @@ public class PostService {
         m.put("postId", p.getPostId());
         m.put("title", p.getTitle());
         m.put("content", p.getContent());
+        if (StringUtils.hasText(p.getImages())) {
+            m.put("images", com.alibaba.fastjson.JSON.parseArray(p.getImages(), String.class));
+        } else {
+            m.put("images", new ArrayList<>());
+        }
         m.put("zone", p.getZone());
         m.put("likeCount", p.getLikeCount());
         m.put("commentCount", p.getCommentCount());

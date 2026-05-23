@@ -1,0 +1,6 @@
+.toolbar { display: flex; justify-content: space-between; align-items: center; padding: 0 8rpx 16rpx; }
+.clear-btn { color: #f56c6c; font-size: 26rpx; }
+.item { display: flex; gap: 20rpx; }
+.cover { width: 120rpx; height: 120rpx; border-radius: 8rpx; background: #eee; flex-shrink: 0; }
+.name { font-weight: bold; display: block; margin-bottom: 8rpx; }
+.empty { text-align: center; padding: 80rpx; color: #999; }
