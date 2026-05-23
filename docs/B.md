@@ -2,7 +2,7 @@
 
 > **对照范围**：项目开发交接文档 §9.4、§9.11（P0 #2；P2 #16～#18）；UI 设计说明书个人中心与首页相关章节  
 > **负责模块**：`miniprogram/`（微信原生小程序）  
-> **协作依赖**：组员 D 提供浏览记录、消息中心、帖子重提、评价重提、举报等后端 API
+> **协作依赖**：组员 D 提供浏览记录、消息中心、协议记录、帖子重提、评价重提、举报等后端 API
 
 ---
 
@@ -22,10 +22,10 @@
 | 举报提交页及入口 | ✅ 已完成 | `pages/report/*`；详情页/帖子详情「举报」按钮 |
 | 个人中心菜单整合 | ✅ 已完成 | `pages/profile/profile.wxml` |
 | 开发者工具「无依赖文件过滤」兼容 | ✅ 已完成 | `project.config.json`、`project.private.config.json` |
-| 用户协议 / 隐私政策首次弹窗 | ❌ 未实现 | 见 §九 |
+| 用户协议 / 隐私政策首次弹窗 | ✅ 已完成 | `components/protocol-modal` + `pages/protocol-detail` + `utils/protocol.js` |
 | 演示占位图资源 | ⚠️ 部分 | 引用 `/assets/placeholder.png` 但文件未提交 |
 
-**成员 B 分工表内核心任务：11/12 已完成（用户协议弹窗未做）。**
+**成员 B 分工表内核心任务：12/12 已完成。**
 
 ---
 
@@ -125,9 +125,27 @@
 ### 2.7 个人中心整合 ✅
 
 - **页面**：`pages/profile/profile.js`、`profile.wxml`、`profile.wxss`
-- **菜单**：我的收藏、浏览记录、消息中心（未读角标）、我的评价、意见反馈、餐饮论坛、退出登录
+- **菜单**：我的收藏、浏览记录、消息中心（未读角标）、我的评价、意见反馈、餐饮论坛、用户协议与隐私政策、退出登录
 
-### 2.8 工程配置修复 ✅
+### 2.8 用户协议与隐私政策 ✅
+
+- **弹窗组件**：`components/protocol-modal/*`
+- **协议详情页**：`pages/protocol-detail/*`（用户协议 / 隐私政策 Tab 切换）
+- **工具模块**：`utils/protocol.js`（本地记录、服务端同步、Tab 页门禁）
+- **接入页面**：四个 Tab 页（首页、推荐、红黑榜、个人中心）在 `onShow` 时校验协议状态
+- **功能**：
+  - 首次使用或未同意时全屏遮罩弹窗，须勾选「我已阅读并同意」方可继续
+  - 弹窗内可跳转查看《用户服务协议》《隐私政策》全文
+  - 点击「不同意」提示后保持阻断，无法加载业务数据
+  - 同意后：本地 Storage 标记 → 自动登录 → 后端记录同意时间
+  - 换设备 / 清缓存后，登录时从 `GET /api/user/info` 的 `protocolAgreed` 同步本地状态
+  - 个人中心可随时进入「用户协议与隐私政策」查阅
+- **接口**：
+  - `POST /api/user/protocol/agree` — 记录用户同意协议
+  - `GET /api/user/info` — 返回 `protocolAgreed` 字段
+- **数据库**：`user` 表字段 `protocol_agreed`、`protocol_agreed_at`（见 `sql/migration_user_protocol.sql`）
+
+### 2.9 工程配置修复 ✅
 
 微信开发者工具开启「过滤无依赖文件」时，仅通过 `navigateTo` 字符串引用的页面（如 `messages`）可能无法注册，表现为白屏、`Page has not been registered yet`。
 
@@ -162,15 +180,22 @@
 | `pages/detail/detail.js` | 浏览记录上报、评价举报入口 |
 | `pages/forum-detail/forum-detail.js` | 帖子举报入口 |
 | `pages/report/*` | 举报提交页 |
-| `pages/profile/profile.js` | 未读消息角标、浏览记录/消息中心入口 |
-| `pages/profile/profile.wxml` | 个人中心菜单 |
+| `pages/profile/profile.js` | 未读消息角标、协议门禁、协议入口 |
+| `pages/profile/profile.wxml` | 个人中心菜单（含协议入口） |
+| `pages/protocol-detail/*` | 用户协议 / 隐私政策全文页（新增） |
+| `pages/index/index.js` | 高级筛选、瀑布流、协议门禁 |
+| `pages/recommend/recommend.js` | 协议门禁 |
+| `pages/redblack/redblack.js` | 协议门禁 |
+| `components/protocol-modal/*` | 协议弹窗组件（新增） |
 | `app.json` | 注册新页面、清理无用页面 |
+| `app.js` | 移除旧版简易 modal，改由 Tab 页统一门禁 |
 
 ### 3.2 工具与配置
 
 | 文件 | 说明 |
 |------|------|
 | `utils/waterfall.js` | 双列瀑布流分配算法（新增） |
+| `utils/protocol.js` | 协议同意状态、门禁、服务端同步（新增） |
 | `utils/request.js` | 请求封装增强 |
 | `utils/upload.js` | 图片上传（论坛/评价复用） |
 | `utils/config.js` | API 基址 `http://localhost:8080` |
@@ -186,7 +211,9 @@
 | `mapper/MessageMapper.java` | 消息 SQL（含 related 字段降级） |
 | `entity/Message.java` | 消息实体 |
 | `vo/MessageVO.java` | 消息返回对象 |
-| `controller/UserController.java` | browse / message 相关路由 |
+| `controller/UserController.java` | browse / message / protocol 相关路由 |
+| `service/UserService.java` | `agreeProtocol()`、`getUserInfo()` 返回 `protocolAgreed` |
+| `entity/User.java` | `protocolAgreed`、`protocolAgreedAt` 字段 |
 | `service/AuditService.java` | 评价审核后推送消息 |
 | `service/PostService.java` | 帖子审核/提交后推送消息 |
 | `service/FeedbackService.java` | 反馈回复后推送消息 |
@@ -195,8 +222,9 @@
 
 | 文件 | 说明 |
 |------|------|
-| `sql/schema.sql` | `message` 表（含 `related_type` 等字段） |
-| `sql/migration_message_related.sql` | 已有库补字段（**必执行一次**） |
+| `sql/schema.sql` | `message` 表、`user.protocol_agreed` 等字段 |
+| `sql/migration_message_related.sql` | 消息跳转字段（**必执行一次**） |
+| `sql/migration_user_protocol.sql` | 用户协议同意字段（**必执行一次**） |
 
 ---
 
@@ -215,15 +243,25 @@ ALTER TABLE `message`
 
 若报 `1060 Duplicate column name`，说明已执行过，可忽略。
 
+```sql
+-- 用户协议同意字段
+-- 见 sql/migration_user_protocol.sql
+USE `catering`;
+
+ALTER TABLE `user`
+  ADD COLUMN `protocol_agreed` TINYINT(1) DEFAULT 0 COMMENT '是否同意用户协议' AFTER `status`,
+  ADD COLUMN `protocol_agreed_at` DATETIME DEFAULT NULL COMMENT '协议同意时间' AFTER `protocol_agreed`;
+```
+
 ---
 
 ## 五、小程序页面一览
 
 | 页面 | 路径 | 功能 | 成员 B 本轮 |
 |------|------|------|-------------|
-| 首页 | `pages/index` | 搜索、筛选、瀑布流 | ✅ 增强 |
-| 推荐 | `pages/recommend` | 猜你喜欢 | — |
-| 红黑榜 | `pages/redblack` | 红/黑榜 | — |
+| 首页 | `pages/index` | 搜索、筛选、瀑布流 | ✅ 增强 + 协议门禁 |
+| 推荐 | `pages/recommend` | 猜你喜欢 | ✅ 协议门禁 |
+| 红黑榜 | `pages/redblack` | 红/黑榜 | ✅ 协议门禁 |
 | 我的 | `pages/profile` | 个人中心入口 | ✅ 增强 |
 | 菜品详情 | `pages/detail` | 详情、收藏、评价、举报 | ✅ 增强 |
 | 写评价 | `pages/review` | 星级、文字、图片、草稿 | ✅ 增强 |
@@ -235,6 +273,7 @@ ALTER TABLE `message`
 | 论坛 | `pages/forum` | 分区、发帖、我的帖子 | ✅ 增强 |
 | 帖子详情 | `pages/forum-detail` | 评论、点赞、举报 | ✅ 增强 |
 | 举报 | `pages/report` | 提交举报 | ✅ 新增 |
+| 协议详情 | `pages/protocol-detail` | 用户协议 / 隐私政策全文 | ✅ 新增 |
 
 ---
 
@@ -257,6 +296,13 @@ ALTER TABLE `message`
 | `/api/user/message/read` | PUT | 全部标记已读 |
 | `/api/user/message/{id}` | DELETE | 删除单条 |
 | `/api/user/message/clear` | DELETE | 清空全部 |
+
+### 用户协议
+
+| API | 方法 | 用途 |
+|-----|------|------|
+| `/api/user/protocol/agree` | POST | 记录用户同意协议 |
+| `/api/user/info` | GET | 用户信息（含 `protocolAgreed`） |
 
 ### 首页 / 菜品
 
@@ -291,7 +337,7 @@ ALTER TABLE `message`
 # 1. 后端（组员 D）
 cd backend
 # 确保 MySQL、Redis 已启动
-# 已有库执行 sql/migration_message_related.sql
+# 已有库执行 sql/migration_message_related.sql、sql/migration_user_protocol.sql
 mvn spring-boot:run
 
 # 2. 微信开发者工具
@@ -305,16 +351,19 @@ mvn spring-boot:run
 
 | 步骤 | 操作 | 预期 |
 |------|------|------|
-| 1 | 首页 → 筛选（价格/菜系/排序）→ 应用 | 列表按条件变化；双列瀑布流展示 |
-| 2 | 进入任意菜品详情 | 后台写入浏览记录 |
-| 3 | 个人中心 → 浏览记录 | 可见刚浏览的菜品；可清空 |
-| 4 | 提交评价 → 管理端拒绝 | 个人中心消息角标 +1 |
-| 5 | 个人中心 → 消息中心 | 可见拒绝通知；点击跳转我的评价/重提 |
-| 6 | 论坛 → 分区 Tab 切换 | 列表按 zone 过滤 |
-| 7 | 论坛 → 发帖带 1～3 张图 | 提交成功；消息中心收到「帖子已提交审核」 |
-| 8 | 写评价 → 保存草稿 → 退出再进 | 内容自动恢复；草稿 Tab 可见 |
-| 9 | 帖子/评价详情 → 举报 | 提交成功 |
-| 10 | 退出消息中心返回个人中心 | 未读角标清零 |
+| 0 | 清除 Storage 中 `user_protocol_agreed` 后重新进入 | 四个 Tab 页弹出协议弹窗；未勾选无法继续 |
+| 1 | 勾选协议 → 同意并继续 | 弹窗关闭，首页正常加载 |
+| 2 | 首页 → 筛选（价格/菜系/排序）→ 应用 | 列表按条件变化；双列瀑布流展示 |
+| 3 | 进入任意菜品详情 | 后台写入浏览记录 |
+| 4 | 个人中心 → 浏览记录 | 可见刚浏览的菜品；可清空 |
+| 5 | 提交评价 → 管理端拒绝 | 个人中心消息角标 +1 |
+| 6 | 个人中心 → 消息中心 | 可见拒绝通知；点击跳转我的评价/重提 |
+| 7 | 论坛 → 分区 Tab 切换 | 列表按 zone 过滤 |
+| 8 | 论坛 → 发帖带 1～3 张图 | 提交成功；消息中心收到「帖子已提交审核」 |
+| 9 | 写评价 → 保存草稿 → 退出再进 | 内容自动恢复；草稿 Tab 可见 |
+| 10 | 帖子/评价详情 → 举报 | 提交成功 |
+| 11 | 个人中心 → 用户协议与隐私政策 | 可切换查看全文 |
+| 12 | 退出消息中心返回个人中心 | 未读角标清零 |
 
 ### 7.3 触发消息的业务场景
 
@@ -336,6 +385,8 @@ mvn spring-boot:run
 6. **真机调试**：`config.js` 的 `baseUrl` 不能写 `localhost`，需改为电脑局域网 IP。
 7. **进入消息中心即已读**：打开列表后会调用「全部已读」，角标立即清零（产品设计行为，非 Bug）。
 8. **微信登录**：仍为 mock 登录（`openId = "mock_" + code`），由组员 D 负责，非 B 范围。
+9. **协议弹窗复现**：开发者工具 Storage 删除 `user_protocol_agreed` 后重新编译；或新用户首次进入 Tab 页触发。
+10. **协议后端字段**：未执行 `migration_user_protocol.sql` 时，同意操作可能报错，需先补数据库字段。
 
 ---
 
@@ -345,7 +396,6 @@ mvn spring-boot:run
 
 | 项 | 说明 |
 |----|------|
-| 用户协议 / 隐私政策弹窗 | 首次启动勾选同意 |
 | 微信真实登录 | `jscode2session`，属 D + 配置项 |
 | 微信订阅消息推送 | 需模板 ID 与后端 `PushService` |
 | 演示图片资源补全 | P0 #1，需 `backend/uploads/demo/` 或改 seed |
@@ -363,6 +413,6 @@ mvn spring-boot:run
 
 ---
 
-**文档版本**：v1.0  
+**文档版本**：v1.1  
 **更新日期**：2026-05-23  
 **项目**：高校餐饮服务质量感知与推荐系统 — 微信小程序（师生端）
