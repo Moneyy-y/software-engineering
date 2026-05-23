@@ -1,3 +1,5 @@
+<protocol-modal show="{{showProtocol}}" bind:agree="onProtocolAgree" bind:reject="onProtocolReject" />
+
 <view class="container">
   <view class="card user-card">
     <image class="avatar" src="{{user.avatar || '/assets/placeholder.png'}}" />
@@ -12,5 +14,6 @@
   <view class="card menu-item" bindtap="goMyReviews">我的评价</view>
   <view class="card menu-item" bindtap="goFeedback">意见反馈</view>
   <view class="card menu-item" bindtap="goForum">餐饮论坛</view>
+  <view class="card menu-item protocol-link" bindtap="goProtocol">用户协议与隐私政策</view>
   <button class="logout" bindtap="logout">退出登录</button>
 </view>

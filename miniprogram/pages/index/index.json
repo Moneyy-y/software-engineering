@@ -1,1 +1,7 @@
-{ "navigationBarTitleText": "菜品浏览", "enablePullDownRefresh": true }
+{
+  "navigationBarTitleText": "菜品浏览",
+  "enablePullDownRefresh": true,
+  "usingComponents": {
+    "protocol-modal": "/components/protocol-modal/protocol-modal"
+  }
+}

@@ -19,6 +19,8 @@ public class User {
     private String mobile;
     private String role;
     private Integer status;
+    private Boolean protocolAgreed;
+    private LocalDateTime protocolAgreedAt;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
 }

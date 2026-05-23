@@ -1,3 +1,5 @@
+<protocol-modal show="{{showProtocol}}" bind:agree="onProtocolAgree" bind:reject="onProtocolReject" />
+
 <view class="tabs">
   <view class="tab {{tab==='red'?'active':''}}" bindtap="switchTab" data-t="red">红榜</view>
   <view class="tab {{tab==='black'?'active':''}}" bindtap="switchTab" data-t="black">黑榜</view>

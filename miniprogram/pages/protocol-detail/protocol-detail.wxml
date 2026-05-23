@@ -1,0 +1,10 @@
+<view class="container">
+  <view class="tabs">
+    <view class="tab {{type === 'user' ? 'active' : ''}}" bindtap="switchType" data-type="user">用户协议</view>
+    <view class="tab {{type === 'privacy' ? 'active' : ''}}" bindtap="switchType" data-type="privacy">隐私政策</view>
+  </view>
+  <view class="card">
+    <text class="heading">{{title}}</text>
+    <text class="body">{{content}}</text>
+  </view>
+</view>

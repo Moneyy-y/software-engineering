@@ -1,0 +1,120 @@
+.protocol-mask {
+  position: fixed;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40rpx;
+  box-sizing: border-box;
+}
+
+.protocol-panel {
+  width: 100%;
+  max-width: 640rpx;
+  background: #fff;
+  border-radius: 24rpx;
+  padding: 40rpx 32rpx 32rpx;
+  box-sizing: border-box;
+}
+
+.title {
+  display: block;
+  font-size: 34rpx;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 24rpx;
+  color: #303133;
+}
+
+.summary {
+  max-height: 320rpx;
+  margin-bottom: 20rpx;
+}
+
+.summary-text {
+  display: block;
+  font-size: 26rpx;
+  line-height: 1.7;
+  color: #606266;
+  margin-bottom: 16rpx;
+}
+
+.links {
+  text-align: center;
+  margin-bottom: 28rpx;
+  font-size: 26rpx;
+}
+
+.link {
+  color: #409EFF;
+}
+
+.link-sep {
+  color: #909399;
+  margin: 0 8rpx;
+}
+
+.check-row {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 32rpx;
+}
+
+.checkbox {
+  width: 36rpx;
+  height: 36rpx;
+  border: 2rpx solid #dcdfe6;
+  border-radius: 8rpx;
+  margin-right: 16rpx;
+  margin-top: 4rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.checkbox.checked {
+  background: #409EFF;
+  border-color: #409EFF;
+}
+
+.check-icon {
+  color: #fff;
+  font-size: 24rpx;
+  line-height: 1;
+}
+
+.check-label {
+  flex: 1;
+  font-size: 26rpx;
+  color: #606266;
+  line-height: 1.5;
+}
+
+.actions {
+  display: flex;
+  gap: 20rpx;
+}
+
+.btn-reject,
+.btn-agree {
+  flex: 1;
+  margin: 0;
+  font-size: 28rpx;
+  border-radius: 40rpx;
+}
+
+.btn-reject {
+  background: #f5f7fa;
+  color: #606266;
+}
+
+.btn-agree {
+  background: #409EFF;
+  color: #fff;
+}

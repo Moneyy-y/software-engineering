@@ -156,7 +156,18 @@ public class UserService {
         map.put("nickname", user.getNickname());
         map.put("avatar", user.getAvatar());
         map.put("role", user.getRole());
+        map.put("protocolAgreed", Boolean.TRUE.equals(user.getProtocolAgreed()));
         return map;
+    }
+
+    public void agreeProtocol(Long userId) {
+        User user = userMapper.selectById(userId);
+        if (user == null) {
+            throw new BusinessException("用户不存在");
+        }
+        user.setProtocolAgreed(true);
+        user.setProtocolAgreedAt(java.time.LocalDateTime.now());
+        userMapper.updateById(user);
     }
 
     public void addFavorite(Long dishId) {

@@ -13,7 +13,8 @@
     "pages/forum-detail/forum-detail",
     "pages/report/report",
     "pages/browse-history/browse-history",
-    "pages/messages/messages"
+    "pages/messages/messages",
+    "pages/protocol-detail/protocol-detail"
   ],
   "window": {
     "navigationBarTitleText": "高校餐饮",

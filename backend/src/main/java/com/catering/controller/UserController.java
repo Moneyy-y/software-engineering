@@ -74,6 +74,12 @@ public class UserController {
         return Result.ok();
     }
 
+    @PostMapping("/protocol/agree")
+    public Result<Void> agreeProtocol() {
+        userService.agreeProtocol(userService.getCurrentUserId());
+        return Result.ok();
+    }
+
     @PostMapping("/browse")
     public Result<Void> addBrowse(@RequestParam Long dishId) {
         browseService.addBrowse(userService.getCurrentUserId(), dishId, null);

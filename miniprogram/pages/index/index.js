@@ -1,7 +1,7 @@
 const { get } = require('../../utils/request')
-const { login } = require('../../utils/auth')
 const { splitWaterfall } = require('../../utils/waterfall')
 const { baseUrl } = require('../../utils/config')
+const { gatePageShow, markAgreed } = require('../../utils/protocol')
 
 const CATEGORIES = ['全部菜系', '特色小炒', '面食粥粉', '快餐便当', '奶茶饮品', '小吃炸串']
 const PRICE_RANGES = [
@@ -45,14 +45,27 @@ Page({
     distanceLabel: '不限距离',
     sortOptions: SORT_OPTIONS,
     sortIndex: 0,
-    sortLabel: '综合推荐'
+    sortLabel: '综合推荐',
+    showProtocol: false
   },
   onLoad() {
     this.getLocation()
     this.loadShops()
   },
   onShow() {
-    login().then(() => this.loadDishes())
+    gatePageShow(this, this.initPage)
+  },
+  onProtocolAgree() {
+    markAgreed().then(() => {
+      this.setData({ showProtocol: false })
+      this.initPage()
+    })
+  },
+  onProtocolReject() {
+    wx.showToast({ title: '需同意协议后方可使用', icon: 'none' })
+  },
+  initPage() {
+    this.loadDishes()
   },
   onPullDownRefresh() {
     this.loadDishes().finally(() => wx.stopPullDownRefresh())

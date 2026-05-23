@@ -1,9 +1,22 @@
 const { get } = require('../../utils/request')
 const { login } = require('../../utils/auth')
+const { gatePageShow, markAgreed } = require('../../utils/protocol')
 
 Page({
-  data: { list: [] },
+  data: { list: [], showProtocol: false },
   onShow() {
+    gatePageShow(this, this.initPage)
+  },
+  onProtocolAgree() {
+    markAgreed().then(() => {
+      this.setData({ showProtocol: false })
+      this.initPage()
+    })
+  },
+  onProtocolReject() {
+    wx.showToast({ title: '需同意协议后方可使用', icon: 'none' })
+  },
+  initPage() {
     login().then(() => this.load())
   },
   async load() {

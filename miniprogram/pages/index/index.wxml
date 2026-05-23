@@ -1,3 +1,5 @@
+<protocol-modal show="{{showProtocol}}" bind:agree="onProtocolAgree" bind:reject="onProtocolReject" />
+
 <view class="search-bar">
   <input placeholder="搜索菜品" value="{{keyword}}" bindinput="onSearch" confirm-type="search" bindconfirm="loadDishes" />
   <picker mode="selector" range="{{shops}}" range-key="name" bindchange="onShopChange">

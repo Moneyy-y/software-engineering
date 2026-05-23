@@ -1,0 +1,24 @@
+<view class="protocol-mask" wx:if="{{show}}" catchtouchmove="noop">
+  <view class="protocol-panel">
+    <text class="title">用户协议与隐私政策</text>
+    <scroll-view class="summary" scroll-y>
+      <text class="summary-text">欢迎使用「高校餐饮」小程序。在使用浏览、评价、推荐、论坛等功能前，请您阅读并同意《用户服务协议》和《隐私政策》。</text>
+      <text class="summary-text">我们将依据政策收集和使用：微信登录标识、浏览与收藏记录、位置信息（用于距离排序）、您主动提交的评价与反馈内容等，用于提供餐饮推荐与服务质量感知服务。</text>
+    </scroll-view>
+    <view class="links">
+      <text class="link" catchtap="openUser">《用户服务协议》</text>
+      <text class="link-sep">和</text>
+      <text class="link" catchtap="openPrivacy">《隐私政策》</text>
+    </view>
+    <view class="check-row" bindtap="toggleCheck">
+      <view class="checkbox {{checked ? 'checked' : ''}}">
+        <text wx:if="{{checked}}" class="check-icon">✓</text>
+      </view>
+      <text class="check-label">我已阅读并同意上述协议</text>
+    </view>
+    <view class="actions">
+      <button class="btn-reject" bindtap="onReject">不同意</button>
+      <button class="btn-agree" type="primary" bindtap="onAgree">同意并继续</button>
+    </view>
+  </view>
+</view>

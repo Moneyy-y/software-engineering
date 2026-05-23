@@ -1,9 +1,22 @@
 const { get, post } = require('../../utils/request')
 const { login } = require('../../utils/auth')
+const { gatePageShow, markAgreed } = require('../../utils/protocol')
 
 Page({
-  data: { user: {}, unreadCount: 0 },
+  data: { user: {}, unreadCount: 0, showProtocol: false },
   onShow() {
+    gatePageShow(this, this.initPage)
+  },
+  onProtocolAgree() {
+    markAgreed().then(() => {
+      this.setData({ showProtocol: false })
+      this.initPage()
+    })
+  },
+  onProtocolReject() {
+    wx.showToast({ title: '需同意协议后方可使用', icon: 'none' })
+  },
+  initPage() {
     login().then(() => {
       this.loadUser()
       this.loadUnread()
@@ -27,6 +40,9 @@ Page({
   goMyReviews() { wx.navigateTo({ url: '/pages/my-reviews/my-reviews' }) },
   goFeedback() { wx.navigateTo({ url: '/pages/feedback/feedback' }) },
   goForum() { wx.navigateTo({ url: '/pages/forum/forum' }) },
+  goProtocol() {
+    wx.navigateTo({ url: '/pages/protocol-detail/protocol-detail?type=user' })
+  },
   logout() {
     post('/api/user/logout').finally(() => {
       wx.removeStorageSync('token')
