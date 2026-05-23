@@ -17,7 +17,7 @@
 | 软件 | 用途 | 说明 |
 |------|------|------|
 | JDK 8+ | 运行后端 | IDEA 运行时可自带 |
-| MySQL 5.7+ | 数据库 | 需执行 `sql/` 下脚本（仅首次） |
+| MySQL 5.7+ | 数据库 | 见下方「数据库初始化」 |
 | Redis 6+ | 缓存 | 后端启动前必须已运行 |
 | IntelliJ IDEA | 运行后端（推荐） | 可代替命令行 `mvn` |
 | Node.js 18+ | 运行管理端 | 首次需 `npm install` |
@@ -27,16 +27,77 @@
 
 ---
 
+## 数据库初始化
+
+`sql/` 目录脚本说明：
+
+| 脚本 | 用途 | 何时执行 |
+|------|------|----------|
+| `schema.sql` | 建库建表（含用户协议、消息跳转、红黑榜、举报、RBAC、审计日志等完整结构） | **新环境必做** |
+| `seed.sql` | 演示数据（管理员、菜品、评价、菜单权限等） | **新环境必做** |
+| `migration_board_manage.sql` | 为 `dish` 表补 `board_sort`、`board_hidden`（红黑榜人工管理） | 仅**旧库升级** |
+| `migration_message_related.sql` | 为 `message` 表补 `related_type`、`related_id`、`dish_id`（消息中心跳转） | 仅**旧库升级** |
+| `migration_user_protocol.sql` | 为 `user` 表补 `protocol_agreed`、`protocol_agreed_at`（用户协议记录） | 仅**旧库升级** |
+| `migration_report_seed.sql` | 举报表示例数据（可选） | 可选 |
+| `reset_database.sql` | 删库重建（内含 `SOURCE` 路径需改成本机路径） | 需要完全重置时 |
+
+### 场景 A：全新安装（推荐）
+
+在 MySQL Workbench 或命令行**按顺序**执行：
+
+```text
+1. sql/schema.sql
+2. sql/seed.sql
+```
+
+当前版 `schema.sql` 已包含上述迁移字段，**无需再跑 migration_*.sql**。
+
+### 场景 B：已有旧版 catering 库（从早期代码升级）
+
+若库是较早版本建的（没有消息跳转、协议、榜单字段等），在选中 `catering` 库后**依次执行**：
+
+```text
+1. sql/migration_board_manage.sql
+2. sql/migration_message_related.sql
+3. sql/migration_user_protocol.sql
+4. sql/migration_report_seed.sql   （可选，补举报演示数据）
+```
+
+若某脚本报 `1060 Duplicate column name`，说明该字段已存在，**跳过该脚本即可**。
+
+### 验证是否就绪
+
+```sql
+USE catering;
+SHOW COLUMNS FROM user LIKE 'protocol_agreed';
+SHOW COLUMNS FROM message LIKE 'related_type';
+SHOW COLUMNS FROM dish LIKE 'board_sort';
+SELECT COUNT(*) FROM dish;
+SELECT COUNT(*) FROM menu;
+```
+
+### 数据库相关常见问题
+
+| 现象 | 处理 |
+|------|------|
+| 红黑榜管理报 `Unknown column 'board_sort'` | 执行 `migration_board_manage.sql` |
+| 消息中心有角标但无法跳转 / 后端 SQL 报错 | 执行 `migration_message_related.sql` |
+| 同意用户协议后后端报错 | 执行 `migration_user_protocol.sql` |
+| 管理端举报列表为空 | 可执行 `migration_report_seed.sql` 或自行在小程序提交举报 |
+| `Error 1046 No database selected` | 先 `USE catering;` 或 Workbench 左侧双击选中库 |
+
+---
+
 ## 推荐运行方式（IDEA + 图形界面，少敲命令）
 
-适合本机已安装 **MySQL、Redis**，且数据库已导入 `schema.sql`、`seed.sql`、`migration_board_manage.sql` 、`migration_report_seed.sql`情况。
+适合本机已安装 **MySQL、Redis**，且数据库已按上文「数据库初始化」完成配置的情况。
 
 ### 运行前确认
 
 1. **MySQL**、**Redis** 服务已启动（Windows「服务」中可设为开机自启）
 2. Redis 自检：`redis-cli ping` 返回 `PONG`
 3. 数据库账号与 `backend/src/main/resources/application-dev.yml` 一致（默认 `catering` / `catering123`，库名 `catering`）
-4. 若从未建表，用 **MySQL Workbench** 执行 `sql/schema.sql` 和 `sql/seed.sql`（只需做一次）
+4. 若从未建表，按「数据库初始化 → 场景 A」执行 `schema.sql` 和 `seed.sql`（只需做一次）
 
 ### 日常三步启动
 
@@ -140,7 +201,7 @@ npm run dev
 ### 方式 B：不用 Docker（本机 MySQL + Redis）
 
 1. 安装并启动 MySQL、Redis
-2. 在 MySQL Workbench 执行 `sql/schema.sql`、`sql/seed.sql`、`migration_board_manage.sql` 、`migration_report_seed.sql`
+2. 按「数据库初始化」完成建表与种子数据（新库用场景 A，旧库升级用场景 B）
 3. 若不用默认账号，修改 `application-dev.yml` 中的 `username`、`password`
 4. 按「推荐运行方式」或「方式 A」第 2～4 步启动三端
 
@@ -166,6 +227,8 @@ npm run dev
 | 小程序网络错误 | 后端先启动；勾选「不校验合法域名」 |
 | 首页无菜品 | 是否已执行 `seed.sql` |
 | 评价提交后看不到 | 管理端需 **评价审核 → 通过** |
+| 红黑榜/消息/协议相关 SQL 报错 | 见「数据库初始化」与「数据库相关常见问题」 |
+| 小程序消息页白屏 | 开发者工具清缓存并重新编译；确认 `ignoreDevUnusedFiles: false` |
 
 ---
 
@@ -194,6 +257,7 @@ npm run dev
 
 - 敏感词 **DFA** 过滤；管理端敏感词库维护
 - 评价 `user_id` **AES** 加密存储（兼容旧 seed 数据 `enc_*`）
-- 管理端：食堂/档口管理、帖子审核、数据看板 **CSV 导出**
-- 小程序：评价 **图片上传**、我的收藏/我的评价、论坛点赞与评论
+- 管理端：食堂/档口管理、帖子审核、数据看板 **CSV/Excel 导出**、红黑榜人工干预、举报处理、RBAC 动态菜单
+- 小程序：首页**高级筛选**与**双列瀑布流**、**浏览记录**、**消息中心**、评价草稿/被拒重提、论坛分区与发帖带图、**用户协议/隐私政策弹窗**
 - 收藏列表返回菜品详情；论坛点赞使用 **Redis**
+- 数据库：`message` 跳转字段、`user` 协议同意字段、`dish` 榜单管理字段（见 `sql/` 迁移脚本）
