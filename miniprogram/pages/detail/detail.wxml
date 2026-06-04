@@ -26,11 +26,20 @@
         <text class="score">★ {{item.score}}</text>
       </view>
       <text>{{item.content}}</text>
+      <view class="review-images" wx:if="{{item.images.length}}">
+        <image
+          wx:for="{{item.images}}" wx:for-item="img" wx:key="*this"
+          class="review-img-thumb" src="{{img}}" mode="aspectFill"
+          bindtap="previewReviewImage" data-url="{{img}}" data-urls="{{item.images}}"
+        />
+      </view>
       <view class="review-foot">
         <text class="text-muted">{{item.createTime}}</text>
         <text class="report-link" bindtap="goReport" data-id="{{item.reviewId}}">举报</text>
       </view>
     </view>
     <view wx:if="{{!dish.reviews.length}}" class="text-muted">暂无评价</view>
+    <view wx:if="{{reviewLoading}}" class="load-tip">加载中...</view>
+    <view wx:elif="{{!reviewHasMore && dish.reviews.length > 0}}" class="load-tip text-muted">— 已加载全部评价 —</view>
   </view>
 </view>

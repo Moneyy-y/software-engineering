@@ -3,7 +3,10 @@ const { login } = require('../../utils/auth')
 const { baseUrl } = require('../../utils/config')
 
 Page({
-  data: { dish: null, id: null, lat: null, lng: null },
+  data: {
+    dish: null, id: null, lat: null, lng: null,
+    reviewPage: 2, reviewLoading: false, reviewHasMore: false
+  },
   onLoad(options) {
     this.setData({ id: options.id })
     this.getLocation()
@@ -39,7 +42,56 @@ Page({
     if (dish.coverImage && !dish.coverImage.startsWith('http')) {
       dish.coverImage = baseUrl + dish.coverImage
     }
-    this.setData({ dish })
+    const initialCount = (dish.reviews || []).length
+    dish.reviews = this.normalizeReviewImages(dish.reviews || [])
+    this.setData({
+      dish,
+      reviewPage: 2,
+      reviewHasMore: initialCount >= 20
+    })
+  },
+  normalizeReviewImages(reviews) {
+    return reviews.map(r => {
+      let images = []
+      if (r.images) {
+        try {
+          images = typeof r.images === 'string' ? JSON.parse(r.images) : r.images
+        } catch { images = [] }
+      }
+      r.images = images.map(url => url.startsWith('http') ? url : baseUrl + url)
+      return r
+    })
+  },
+  previewReviewImage(e) {
+    const { url, urls } = e.currentTarget.dataset
+    wx.previewImage({ current: url, urls: urls || [url] })
+  },
+  onReachBottom() {
+    if (!this.data.reviewHasMore || this.data.reviewLoading) return
+    this.loadMoreReviews()
+  },
+  async loadMoreReviews() {
+    this.setData({ reviewLoading: true })
+    try {
+      const res = await get(`/api/review/dish/${this.data.id}`, {
+        page: this.data.reviewPage,
+        size: 20
+      })
+      const newList = this.normalizeReviewImages(res.records || [])
+      if (newList.length > 0) {
+        const dish = this.data.dish
+        dish.reviews = [...dish.reviews, ...newList]
+        this.setData({
+          dish,
+          reviewPage: this.data.reviewPage + 1,
+          reviewHasMore: newList.length >= 20
+        })
+      } else {
+        this.setData({ reviewHasMore: false })
+      }
+    } finally {
+      this.setData({ reviewLoading: false })
+    }
   },
   async toggleFavorite() {
     const { dish } = this.data

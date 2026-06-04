@@ -66,7 +66,26 @@ Page({
   chooseImage() {
     wx.chooseImage({
       count: 9 - this.data.images.length,
+      sizeType: ['compressed'],
       success: async (res) => {
+        // 客户端文件校验
+        const MAX_SIZE = 5 * 1024 * 1024 // 5MB
+        const ALLOWED_EXT = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp']
+        const tempFiles = res.tempFiles || []
+        for (const f of tempFiles) {
+          // 体积校验
+          if (f.size > MAX_SIZE) {
+            wx.showToast({ title: '图片大小不能超过 5MB', icon: 'none' })
+            return
+          }
+          // 扩展名校验
+          const ext = f.path.substring(f.path.lastIndexOf('.')).toLowerCase()
+          if (!ALLOWED_EXT.includes(ext)) {
+            wx.showToast({ title: '仅支持 JPG/PNG/GIF/WebP/BMP 格式', icon: 'none' })
+            return
+          }
+        }
+
         wx.showLoading({ title: '上传中' })
         const urls = [...this.data.images]
         try {

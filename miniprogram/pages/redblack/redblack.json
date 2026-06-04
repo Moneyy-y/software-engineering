@@ -1,5 +1,6 @@
 {
   "navigationBarTitleText": "红黑榜",
+  "enablePullDownRefresh": true,
   "usingComponents": {
     "protocol-modal": "/components/protocol-modal/protocol-modal"
   }

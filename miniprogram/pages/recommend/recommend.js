@@ -23,6 +23,9 @@ Page({
     const list = await get('/api/recommend/list', { lat: 39.916527, lng: 116.397128, limit: 20 }) || []
     this.setData({ list })
   },
+  onPullDownRefresh() {
+    this.load().finally(() => wx.stopPullDownRefresh())
+  },
   goDetail(e) {
     wx.navigateTo({ url: `/pages/detail/detail?id=${e.currentTarget.dataset.id}` })
   }

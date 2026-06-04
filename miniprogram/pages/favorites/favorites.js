@@ -1,4 +1,4 @@
-const { get } = require('../../utils/request')
+const { get, post } = require('../../utils/request')
 const { login } = require('../../utils/auth')
 const { baseUrl } = require('../../utils/config')
 
@@ -19,5 +19,21 @@ Page({
   },
   goDetail(e) {
     wx.navigateTo({ url: `/pages/detail/detail?id=${e.currentTarget.dataset.id}` })
+  },
+  async remove(e) {
+    const { id, index } = e.currentTarget.dataset
+    const item = this.data.list[index]
+    wx.showModal({
+      title: '取消收藏',
+      content: `确定不再收藏「${item.name}」吗？`,
+      success: async (res) => {
+        if (!res.confirm) return
+        await post(`/api/user/favorite/remove?dishId=${id}`)
+        const list = [...this.data.list]
+        list.splice(index, 1)
+        this.setData({ list })
+        wx.showToast({ title: '已取消收藏', icon: 'none' })
+      }
+    })
   }
 })

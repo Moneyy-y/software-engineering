@@ -1,9 +1,15 @@
 <view class="container">
-  <view class="card item" wx:for="{{list}}" wx:key="dishId" bindtap="goDetail" data-id="{{item.dishId}}">
-    <image class="cover" src="{{item.coverImage}}" mode="aspectFill" />
-    <view class="info">
-      <text class="name">{{item.name}}</text>
-      <text class="score">★ {{item.avgScore}} · ¥{{item.price}}</text>
+  <view class="card item" wx:for="{{list}}" wx:key="dishId">
+    <view class="item-main" bindtap="goDetail" data-id="{{item.dishId}}">
+      <image class="cover" src="{{item.coverImage}}" mode="aspectFill" />
+      <view class="info">
+        <text class="name">{{item.name}}</text>
+        <text class="score">★ {{item.avgScore}} · ¥{{item.price}}</text>
+      </view>
+    </view>
+    <view class="item-action">
+      <button class="unfav-btn" size="mini" type="warn" plain
+        catchtap="remove" data-id="{{item.dishId}}" data-index="{{index}}">取消收藏</button>
     </view>
   </view>
   <view wx:if="{{!list.length}}" class="empty">暂无收藏</view>

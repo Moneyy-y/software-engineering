@@ -17,6 +17,20 @@
       <el-table-column prop="dishName" label="菜品" />
       <el-table-column prop="score" label="评分" width="80" />
       <el-table-column prop="content" label="内容" show-overflow-tooltip />
+      <el-table-column label="图片" width="120">
+        <template #default="{ row }">
+          <div v-if="parseImages(row.images).length" class="image-cell">
+            <img
+              v-for="(url, idx) in parseImages(row.images)"
+              :key="idx"
+              :src="url"
+              class="review-thumb"
+              @click="previewImage(url)"
+            />
+          </div>
+          <span v-else style="color:#999">无</span>
+        </template>
+      </el-table-column>
       <el-table-column prop="sensitiveHit" label="敏感词" width="100">
         <template #default="{ row }">
           <el-tag v-if="row.sensitiveHit" type="danger">{{ row.sensitiveHit }}</el-tag>
@@ -84,6 +98,25 @@ async function confirmReject() {
   load()
 }
 
+function parseImages(images) {
+  if (!images) return []
+  try {
+    return JSON.parse(images)
+  } catch {
+    return []
+  }
+}
+
+function previewImage(url) {
+  const img = new Image()
+  img.src = url
+  const win = window.open('', '_blank')
+  if (win) {
+    win.document.write(`<img src="${url}" style="max-width:100%;max-height:100vh" />`)
+    win.document.title = '图片预览'
+  }
+}
+
 async function batchPass() {
   await ElMessageBox.confirm(`确认批量通过 ${selected.value.length} 条？`)
   await request.post('/api/audit/review/batchPass', { reviewIds: selected.value })
@@ -91,3 +124,24 @@ async function batchPass() {
   load()
 }
 </script>
+
+<style scoped>
+.image-cell {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.review-thumb {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 4px;
+  border: 1px solid #e0e0e0;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+.review-thumb:hover {
+  transform: scale(1.1);
+  border-color: #409eff;
+}
+</style>

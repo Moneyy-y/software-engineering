@@ -19,7 +19,10 @@ Page({
     this.setData({ comment: e.detail.value })
   },
   async sendComment() {
-    if (!this.data.comment.trim()) return
+    if (!this.data.comment.trim()) {
+      wx.showToast({ title: '请输入评论内容', icon: 'none' })
+      return
+    }
     await post('/api/post/comment', {
       params: { postId: this.data.postId, content: this.data.comment }
     })
@@ -27,7 +30,9 @@ Page({
     this.load()
   },
   async toggleLike() {
+    const wasLiked = this.data.post.liked
     await post('/api/post/like', { params: { postId: this.data.postId } })
+    wx.showToast({ title: wasLiked ? '已取消点赞' : '已点赞', icon: 'none' })
     this.load()
   },
   goReport() {
