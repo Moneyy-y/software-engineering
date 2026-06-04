@@ -61,6 +61,11 @@ public class AdminManageController {
         return Result.ok();
     }
 
+    @GetMapping("/sensitive-word/categories")
+    public Result<List<String>> listCategories() {
+        return Result.ok(sensitiveWordService.listCategories());
+    }
+
     @GetMapping("/shop/list")
     public Result<List<Shop>> listShops() {
         return Result.ok(dishService.listAllShops());

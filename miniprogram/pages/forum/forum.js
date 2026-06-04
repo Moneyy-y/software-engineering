@@ -86,6 +86,10 @@ Page({
     }))
     this.setData({ posts: formatted })
   },
+  onPullDownRefresh() {
+    (this.data.activeMainTab === 'my' ? this.loadMyPosts() : this.load())
+      .finally(() => wx.stopPullDownRefresh())
+  },
   async loadMyPosts() {
     const list = (await get('/api/post/my')) || []
     this.setData({ myPosts: list })
@@ -149,7 +153,24 @@ Page({
     }
     wx.chooseImage({
       count: remain,
+      sizeType: ['compressed'],
       success: async (res) => {
+        // 客户端文件校验
+        const MAX_SIZE = 5 * 1024 * 1024
+        const ALLOWED_EXT = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp']
+        const tempFiles = res.tempFiles || []
+        for (const f of tempFiles) {
+          if (f.size > MAX_SIZE) {
+            wx.showToast({ title: '图片大小不能超过 5MB', icon: 'none' })
+            return
+          }
+          const ext = f.path.substring(f.path.lastIndexOf('.')).toLowerCase()
+          if (!ALLOWED_EXT.includes(ext)) {
+            wx.showToast({ title: '仅支持 JPG/PNG/GIF/WebP/BMP 格式', icon: 'none' })
+            return
+          }
+        }
+
         wx.showLoading({ title: '上传中' })
         const urls = [...this.data.publishImages]
         try {
@@ -172,6 +193,10 @@ Page({
     this.setData({ publishImages: urls })
   },
   async submitPublish() {
+    if (!wx.getStorageSync('token')) {
+      wx.showToast({ title: '请先登录', icon: 'none' })
+      try { await login() } catch { return }
+    }
     const title = (this.data.publishTitle || '').trim()
     const content = (this.data.publishContent || '').trim()
     if (!title) {

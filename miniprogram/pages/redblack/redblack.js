@@ -22,6 +22,9 @@ Page({
     const data = await get('/api/recommend/redblack') || {}
     this.setData({ redList: data.red || [], blackList: data.black || [], currentList: data.red || [] })
   },
+  onPullDownRefresh() {
+    this.load().finally(() => wx.stopPullDownRefresh())
+  },
   switchTab(e) {
     const tab = e.currentTarget.dataset.t
     this.setData({ tab, currentList: tab === 'red' ? this.data.redList : this.data.blackList })

@@ -27,6 +27,20 @@
       <el-table-column type="selection" width="50" />
       <el-table-column prop="title" label="标题" min-width="120" />
       <el-table-column prop="content" label="内容" show-overflow-tooltip />
+      <el-table-column label="图片" width="120">
+        <template #default="{ row }">
+          <div v-if="(row.images || []).length" class="image-cell">
+            <img
+              v-for="(url, idx) in row.images"
+              :key="idx"
+              :src="url"
+              class="post-thumb"
+              @click="previewImage(url)"
+            />
+          </div>
+          <span v-else style="color:#999">无</span>
+        </template>
+      </el-table-column>
       <el-table-column prop="zone" label="分区" width="90" />
       <el-table-column prop="auditStatus" label="状态" width="90">
         <template #default="{ row }">
@@ -197,10 +211,36 @@ async function batchDelete() {
   selected.value = []
   load()
 }
+
+function previewImage(url) {
+  const win = window.open('', '_blank')
+  if (win) {
+    win.document.write(`<img src="${url}" style="max-width:100%;max-height:100vh" />`)
+    win.document.title = '图片预览'
+  }
+}
 </script>
 
 <style scoped>
 .toolbar {
   margin-bottom: 8px;
+}
+.image-cell {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.post-thumb {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 4px;
+  border: 1px solid #e0e0e0;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+.post-thumb:hover {
+  transform: scale(1.1);
+  border-color: #409eff;
 }
 </style>

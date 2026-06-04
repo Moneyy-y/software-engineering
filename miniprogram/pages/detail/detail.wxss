@@ -10,3 +10,6 @@
 .review-head { display: flex; justify-content: space-between; margin-bottom: 8rpx; }
 .review-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 8rpx; }
 .report-link { color: #f56c6c; font-size: 24rpx; }
+.load-tip { text-align: center; padding: 24rpx 0; color: #999; font-size: 24rpx; }
+.review-images { display: flex; flex-wrap: wrap; gap: 8rpx; margin-top: 12rpx; }
+.review-img-thumb { width: 160rpx; height: 160rpx; border-radius: 8rpx; background: #eee; }

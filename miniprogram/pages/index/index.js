@@ -65,10 +65,10 @@ Page({
     wx.showToast({ title: '需同意协议后方可使用', icon: 'none' })
   },
   initPage() {
-    this.loadDishes()
+    return this.loadDishes()
   },
   onPullDownRefresh() {
-    this.loadDishes().finally(() => wx.stopPullDownRefresh())
+    this.loadDishes().catch(() => {}).finally(() => wx.stopPullDownRefresh())
   },
   getLocation() {
     wx.getLocation({

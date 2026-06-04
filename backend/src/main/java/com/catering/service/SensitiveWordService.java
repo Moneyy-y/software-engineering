@@ -48,6 +48,17 @@ public class SensitiveWordService {
                 new LambdaQueryWrapper<SensitiveWord>().orderByDesc(SensitiveWord::getWordId));
     }
 
+    public List<String> listCategories() {
+        List<SensitiveWord> list = sensitiveWordMapper.selectList(
+                new LambdaQueryWrapper<SensitiveWord>().select(SensitiveWord::getCategory));
+        return list.stream()
+                .map(SensitiveWord::getCategory)
+                .filter(c -> c != null && !c.trim().isEmpty())
+                .distinct()
+                .sorted()
+                .collect(java.util.stream.Collectors.toList());
+    }
+
     public void addWord(String content, String category) {
         if (content == null || content.trim().isEmpty()) {
             throw new BusinessException(1001, "敏感词不能为空");

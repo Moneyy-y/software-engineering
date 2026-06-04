@@ -1,4 +1,6 @@
-.item { display: flex; gap: 20rpx; }
-.cover { width: 120rpx; height: 120rpx; border-radius: 8rpx; background: #eee; }
+.item { display: flex; align-items: center; justify-content: space-between; gap: 20rpx; }
+.item-main { display: flex; gap: 20rpx; flex: 1; }
+.cover { width: 120rpx; height: 120rpx; border-radius: 8rpx; background: #eee; flex-shrink: 0; }
 .name { font-weight: bold; display: block; }
+.unfav-btn { font-size: 24rpx; padding: 0 16rpx; flex-shrink: 0; }
 .empty { text-align: center; padding: 80rpx; color: #999; }
