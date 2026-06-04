@@ -40,7 +40,10 @@ async function load() {
 }
 
 async function add() {
-  if (!newWord.value.trim()) return
+  if (!newWord.value.trim()) {
+    ElMessage.warning('敏感词为空')
+    return
+  }
   await request.post('/api/admin/sensitive-word/add', null, {
     params: { content: newWord.value, category: newCategory.value }
   })

@@ -7,6 +7,7 @@
           <el-button type="primary" @click="openAdd('red')">加入红榜</el-button>
           <el-button @click="openAdd('black')">加入黑榜</el-button>
           <el-button type="warning" :loading="calculating" @click="recalculate">重新计算榜单</el-button>
+          <el-button type="danger" :disabled="!selectedRedIds.length && !selectedBlackIds.length" @click="batchHide">批量隐藏</el-button>
           <el-button @click="load">刷新</el-button>
         </div>
       </div>
@@ -16,7 +17,8 @@
       <el-col :span="12">
         <el-card>
           <template #header><span class="red-title">红榜管理</span></template>
-          <el-table :data="redList" v-loading="loading" empty-text="暂无红榜菜品">
+          <el-table :data="redList" v-loading="loading" empty-text="暂无红榜菜品" @selection-change="onRedSelect">
+            <el-table-column type="selection" width="50" />
             <el-table-column label="#" width="50">
               <template #default="{ $index }">{{ $index + 1 }}</template>
             </el-table-column>
@@ -56,7 +58,8 @@
       <el-col :span="12">
         <el-card>
           <template #header><span class="black-title">黑榜管理</span></template>
-          <el-table :data="blackList" v-loading="loading" empty-text="暂无黑榜菜品">
+          <el-table :data="blackList" v-loading="loading" empty-text="暂无黑榜菜品" @selection-change="onBlackSelect">
+            <el-table-column type="selection" width="50" />
             <el-table-column label="#" width="50">
               <template #default="{ $index }">{{ $index + 1 }}</template>
             </el-table-column>
@@ -131,6 +134,8 @@ const addTarget = ref('red')
 const selectedDishId = ref(null)
 const dishOptions = ref([])
 const dishLoading = ref(false)
+const selectedRedIds = ref([])
+const selectedBlackIds = ref([])
 
 onMounted(load)
 
@@ -164,6 +169,24 @@ async function recalculate() {
   } finally {
     calculating.value = false
   }
+}
+
+function onRedSelect(rows) {
+  selectedRedIds.value = rows.map(r => r.dishId)
+}
+
+function onBlackSelect(rows) {
+  selectedBlackIds.value = rows.map(r => r.dishId)
+}
+
+async function batchHide() {
+  const allIds = [...selectedRedIds.value, ...selectedBlackIds.value]
+  if (allIds.length === 0) return
+  await request.post('/api/admin/board/batch/intervene', { dishIds: allIds, action: 'hide' })
+  ElMessage.success('批量隐藏成功')
+  selectedRedIds.value = []
+  selectedBlackIds.value = []
+  await load()
 }
 
 async function openAdd(target) {

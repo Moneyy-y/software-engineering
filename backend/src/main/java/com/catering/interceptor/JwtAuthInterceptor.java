@@ -1,5 +1,7 @@
 package com.catering.interceptor;
 
+import com.catering.entity.User;
+import com.catering.mapper.UserMapper;
 import com.catering.util.JwtUtil;
 import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -14,10 +16,12 @@ public class JwtAuthInterceptor implements HandlerInterceptor {
 
     private final JwtUtil jwtUtil;
     private final StringRedisTemplate redisTemplate;
+    private final UserMapper userMapper;
 
-    public JwtAuthInterceptor(JwtUtil jwtUtil, StringRedisTemplate redisTemplate) {
+    public JwtAuthInterceptor(JwtUtil jwtUtil, StringRedisTemplate redisTemplate, UserMapper userMapper) {
         this.jwtUtil = jwtUtil;
         this.redisTemplate = redisTemplate;
+        this.userMapper = userMapper;
     }
 
     @Override
@@ -38,6 +42,14 @@ public class JwtAuthInterceptor implements HandlerInterceptor {
             }
             Long userId = jwtUtil.getUserId(token);
             String role = jwtUtil.getRole(token);
+            
+            // 检查用户状态
+            User user = userMapper.selectById(userId);
+            if (user == null || user.getStatus() == null || user.getStatus() == 0) {
+                writeUnauthorized(response, "用户已被停用");
+                return false;
+            }
+            
             request.setAttribute("userId", userId);
             request.setAttribute("role", role);
             return true;

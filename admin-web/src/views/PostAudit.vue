@@ -14,7 +14,7 @@
           <el-option label="全部" value="all" />
         </el-select>
       </el-form-item>
-      <el-form-item v-if="filterStatus === 'pending'">
+      <el-form-item>
         <el-button type="success" :disabled="!selected.length" @click="batchApprove">批量通过</el-button>
         <el-button type="danger" :disabled="!selected.length" @click="openBatchReject">批量拒绝</el-button>
       </el-form-item>
@@ -169,7 +169,7 @@ async function confirmReject() {
   }
   if (rejectBatch.value) {
     await request.post('/api/admin/post/reject/batch', {
-      postIds: rejectIds.value,
+      postIds: rejectIds.value.map(id => Number(id)),
       reason: rejectReason.value.trim()
     })
     ElMessage.success('批量拒绝成功')

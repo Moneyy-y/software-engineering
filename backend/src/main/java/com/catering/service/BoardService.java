@@ -156,7 +156,8 @@ public class BoardService {
             item.put("boardSort", dish.getBoardSort());
             item.put("boardHidden", dish.getBoardHidden() != null ? dish.getBoardHidden() : 0);
             item.put("source", match.manual ? "manual" : "auto");
-            item.put("pinned", dish.getBoardSort() != null);
+            // 负数表示置顶
+            item.put("pinned", dish.getBoardSort() != null && dish.getBoardSort() < 0);
             entries.add(item);
         }
         sortBoardEntries(entries, redBoard);
@@ -206,17 +207,34 @@ public class BoardService {
         entries.sort((a, b) -> {
             Integer sortA = (Integer) a.get("boardSort");
             Integer sortB = (Integer) b.get("boardSort");
-            boolean pinnedA = sortA != null;
-            boolean pinnedB = sortB != null;
+            // 判断是否为置顶（负数表示置顶）
+            boolean pinnedA = sortA != null && sortA < 0;
+            boolean pinnedB = sortB != null && sortB < 0;
+            
+            // 置顶优先
             if (pinnedA != pinnedB) {
                 return pinnedA ? -1 : 1;
             }
+            
+            // 置顶内部：按boardSort升序（负数越小越靠前）
             if (pinnedA && pinnedB) {
                 int cmp = Integer.compare(sortA, sortB);
                 if (cmp != 0) {
                     return cmp;
                 }
             }
+            
+            // 非置顶且有boardSort（正数）：按boardSort升序排列
+            boolean hasSortA = sortA != null && sortA >= 0;
+            boolean hasSortB = sortB != null && sortB >= 0;
+            if (hasSortA && hasSortB) {
+                int cmp = Integer.compare(sortA, sortB);
+                if (cmp != 0) {
+                    return cmp;
+                }
+            }
+            
+            // 最后按评分排序
             BigDecimal scoreA = (BigDecimal) a.get("avgScore");
             BigDecimal scoreB = (BigDecimal) b.get("avgScore");
             if (scoreA == null && scoreB == null) {
@@ -238,11 +256,12 @@ public class BoardService {
             throw new BusinessException(redBoard ? "该菜品不在红榜中，请先加入红榜" : "该菜品不在黑榜中，请先加入黑榜");
         }
         List<Dish> dishes = loadActiveDishes();
+        // 置顶使用负数排序值，确保置顶菜品排在最前面
         int minSort = dishes.stream()
-                .filter(d -> resolveBoardMatch(d, redBoard).onBoard && d.getBoardSort() != null)
+                .filter(d -> resolveBoardMatch(d, redBoard).onBoard && d.getBoardSort() != null && d.getBoardSort() < 0)
                 .mapToInt(Dish::getBoardSort)
                 .min()
-                .orElse(1);
+                .orElse(-1);
         dish.setBoardSort(minSort - 1);
         dishMapper.updateById(dish);
     }
@@ -264,13 +283,36 @@ public class BoardService {
         if (target < 0 || target >= entries.size()) {
             return;
         }
+        
+        // 获取当前菜品和目标菜品的置顶状态
+        boolean dishPinned = dish.getBoardSort() != null && dish.getBoardSort() < 0;
+        Integer otherSort = (Integer) entries.get(target).get("boardSort");
+        boolean otherPinned = otherSort != null && otherSort < 0;
+        
+        // 移动规则：只能在同类型菜品之间移动
+        // 置顶菜品只能和置顶菜品交换，非置顶菜品只能和非置顶菜品交换
+        if (dishPinned != otherPinned) {
+            // 跨类型移动无效，不执行任何操作
+            return;
+        }
+        
         Long otherId = (Long) entries.get(target).get("dishId");
         Dish other = dishMapper.selectById(otherId);
         if (other == null) {
             return;
         }
-        int sortA = dish.getBoardSort() != null ? dish.getBoardSort() : index + 100;
-        int sortB = other.getBoardSort() != null ? other.getBoardSort() : target + 100;
+        
+        // 获取当前榜单中最大的非负boardSort值（用于生成非置顶菜品的排序值）
+        int maxNonNegSort = dishes.stream()
+                .filter(d -> resolveBoardMatch(d, redBoard).onBoard && d.getBoardSort() != null && d.getBoardSort() >= 0)
+                .mapToInt(Dish::getBoardSort)
+                .max()
+                .orElse(0);
+        
+        // 为没有boardSort的菜品分配一个正数排序值
+        int sortA = dish.getBoardSort() != null ? dish.getBoardSort() : maxNonNegSort + index + 1;
+        int sortB = other.getBoardSort() != null ? other.getBoardSort() : maxNonNegSort + target + 1;
+        
         dishMapper.update(null, new LambdaUpdateWrapper<Dish>()
                 .eq(Dish::getDishId, dish.getDishId())
                 .set(Dish::getBoardSort, sortB));

@@ -20,7 +20,7 @@
         </template>
       </el-table-column>
       <el-table-column prop="handleResult" label="处理说明" width="120" show-overflow-tooltip />
-      <el-table-column label="操作" width="140">
+      <el-table-column label="操作" width="200">
         <template #default="{ row }">
           <template v-if="row.status === 'pending'">
             <el-popconfirm title="确认通过此举报？" @confirm="handle(row.reportId, 'approved', '已处理')">
@@ -30,6 +30,9 @@
               <template #reference><el-button size="small" type="danger">驳回</el-button></template>
             </el-popconfirm>
           </template>
+          <el-popconfirm title="确认删除此举报？" @confirm="deleteReport(row.reportId)">
+            <template #reference><el-button size="small">删除</el-button></template>
+          </el-popconfirm>
         </template>
       </el-table-column>
     </el-table>
@@ -61,6 +64,12 @@ async function load() {
 async function handle(id, status, handleResult) {
   await request.put(`/api/report/handle/${id}`, { status, handleResult })
   ElMessage.success('处理完成')
+  load()
+}
+
+async function deleteReport(id) {
+  await request.delete(`/api/report/${id}`)
+  ElMessage.success('删除成功')
   load()
 }
 </script>
