@@ -4,3 +4,4 @@
 .item { display: flex; align-items: center; gap: 20rpx; }
 .rank { font-size: 40rpx; font-weight: bold; color: #409EFF; width: 60rpx; }
 .name { font-size: 30rpx; display: block; }
+.empty { text-align: center; padding: 100rpx 0; color: #999; font-size: 28rpx; }
