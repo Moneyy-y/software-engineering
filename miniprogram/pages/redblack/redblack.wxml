@@ -5,6 +5,9 @@
   <view class="tab {{tab==='black'?'active':''}}" bindtap="switchTab" data-t="black">黑榜</view>
 </view>
 <view class="container">
+  <view wx:if="{{currentList.length === 0}}" class="empty">
+    <text>暂无{{tab === 'red' ? '红榜' : '黑榜'}}菜单</text>
+  </view>
   <view class="card item" wx:for="{{currentList}}" wx:for-index="idx" wx:key="dishId" bindtap="goDetail" data-id="{{item.dishId}}">
     <text class="rank">{{idx + 1}}</text>
     <view class="info">

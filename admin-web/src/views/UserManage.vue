@@ -4,6 +4,7 @@
       <span>用户管理</span>
       <div style="float:right">
         <el-input v-model="search.username" placeholder="用户名" clearable style="width:140px;margin-right:8px" @clear="load" @keyup.enter="load" />
+        <el-input v-model="search.nickname" placeholder="昵称" clearable style="width:140px;margin-right:8px" @clear="load" @keyup.enter="load" />
         <el-select v-model="search.role" placeholder="角色" clearable style="width:120px;margin-right:8px" @change="load">
           <el-option value="admin" label="管理员" />
           <el-option value="auditor" label="审核员" />
@@ -91,6 +92,7 @@ onMounted(load)
 async function load() {
   const params = { page: page.value, size: size.value }
   if (search.username) params.username = search.username
+  if (search.nickname) params.nickname = search.nickname
   if (search.role) params.role = search.role
   if (search.status !== '') params.status = search.status
   const data = await request.get('/api/admin/user/list', { params })

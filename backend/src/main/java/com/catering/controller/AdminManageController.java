@@ -214,4 +214,11 @@ public class AdminManageController {
         User user = userService.changeRole(userId, role);
         return Result.ok(UserVO.of(user));
     }
+
+    @PostMapping("/user/status")
+    @AuditLog("修改用户状态")
+    public Result<UserVO> changeUserStatus(@RequestParam Long userId, @RequestParam Integer status) {
+        User user = userService.changeStatus(userId, status);
+        return Result.ok(UserVO.of(user));
+    }
 }

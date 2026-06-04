@@ -356,6 +356,19 @@ public class UserService {
         return user;
     }
 
+    public User changeStatus(Long userId, Integer status) {
+        User user = userMapper.selectById(userId);
+        if (user == null) {
+            throw new BusinessException(1004, "用户不存在");
+        }
+        if ("admin".equals(user.getRole()) && user.getUserId() == 1L) {
+            throw new BusinessException(1006, "不能修改超级管理员状态");
+        }
+        user.setStatus(status);
+        userMapper.updateById(user);
+        return user;
+    }
+
     private LoginVO buildLoginVO(User user) {
         String token = jwtUtil.generateToken(user.getUserId(), user.getRole());
         String refreshToken = jwtUtil.generateRefreshToken(user.getUserId());
