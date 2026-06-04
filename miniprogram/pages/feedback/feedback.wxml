@@ -1,7 +1,31 @@
-<view class="container card">
-  <picker mode="selector" range="{{typeLabels}}" value="{{typeIndex}}" bindchange="onType">
-    <view class="picker">类型：{{typeLabel}}</view>
-  </picker>
-  <textarea placeholder="请描述问题（至少10字）" bindinput="onDesc" />
-  <button class="btn-primary" bindtap="submit">提交反馈</button>
+<view class="container">
+  <view class="card">
+    <picker mode="selector" range="{{typeLabels}}" value="{{typeIndex}}" bindchange="onType">
+      <view class="picker">类型：{{typeLabel}}</view>
+    </picker>
+    <textarea placeholder="请描述问题（至少10字）" bindinput="onDesc" value="{{description}}" />
+    <button class="btn-primary" bindtap="submit">提交反馈</button>
+  </view>
+
+  <view class="section">
+    <view class="section-title">我的反馈</view>
+    
+    <view wx:if="{{loading}}" class="loading">加载中...</view>
+    <view wx:elif="{{feedbacks.length === 0}}" class="empty">暂无反馈记录</view>
+    <view wx:else class="feedback-list">
+      <view wx:for="{{feedbacks}}" wx:key="feedbackId" class="feedback-item card">
+        <view class="feedback-header">
+          <view class="type">{{getTypeLabel(item.type)}}</view>
+          <view class="status {{getStatusColor(item.status)}}">{{getStatusLabel(item.status)}}</view>
+        </view>
+        <view class="feedback-desc">{{item.description}}</view>
+        <view wx:if="{{item.reply}}" class="feedback-reply">
+          <view class="reply-label">回复：</view>
+          <view class="reply-content">{{item.reply}}</view>
+        </view>
+        <view class="feedback-time">{{formatTime(item.createTime)}}</view>
+        <view wx:if="{{item.resolveTime}}" class="feedback-resolve-time">办结时间：{{formatTime(item.resolveTime)}}</view>
+      </view>
+    </view>
+  </view>
 </view>
