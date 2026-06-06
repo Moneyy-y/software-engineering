@@ -4,7 +4,7 @@
       <view class="picker">类型：{{typeLabel}}</view>
     </picker>
     <textarea placeholder="请描述问题（至少10字）" bindinput="onDesc" value="{{description}}" />
-    <button class="btn-primary" bindtap="submit">提交反馈</button>
+    <button class="btn-primary" bindtap="onSubmit">提交反馈</button>
   </view>
 
   <view class="section">
@@ -15,16 +15,17 @@
     <view wx:else class="feedback-list">
       <view wx:for="{{feedbacks}}" wx:key="feedbackId" class="feedback-item card">
         <view class="feedback-header">
-          <view class="type">{{getTypeLabel(item.type)}}</view>
-          <view class="status {{getStatusColor(item.status)}}">{{getStatusLabel(item.status)}}</view>
+          <view class="type">{{item.typeLabel}}</view>
+          <view class="status {{item.statusColor}}">{{item.statusLabel}}</view>
         </view>
         <view class="feedback-desc">{{item.description}}</view>
         <view wx:if="{{item.reply}}" class="feedback-reply">
           <view class="reply-label">回复：</view>
           <view class="reply-content">{{item.reply}}</view>
         </view>
-        <view class="feedback-time">{{formatTime(item.createTime)}}</view>
-        <view wx:if="{{item.resolveTime}}" class="feedback-resolve-time">办结时间：{{formatTime(item.resolveTime)}}</view>
+        <view class="feedback-time">提交时间：{{item.createTimeText}}</view>
+        <view wx:if="{{item.acceptTimeText}}" class="feedback-accept-time">受理时间：{{item.acceptTimeText}}</view>
+        <view wx:if="{{item.resolveTimeText}}" class="feedback-resolve-time">办结时间：{{item.resolveTimeText}}</view>
       </view>
     </view>
   </view>

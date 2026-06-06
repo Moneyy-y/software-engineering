@@ -1,6 +1,8 @@
 .user-card { display: flex; align-items: center; gap: 24rpx; }
 .avatar { width: 120rpx; height: 120rpx; border-radius: 50%; background: #eee; }
+.user-meta { display: flex; flex-direction: column; gap: 8rpx; }
 .nickname { font-size: 34rpx; font-weight: bold; }
+.login-hint { font-size: 24rpx; color: #909399; }
 .menu-item { padding: 32rpx; font-size: 30rpx; display: flex; justify-content: space-between; align-items: center; }
 .protocol-link { color: #909399; font-size: 28rpx; }
 .badge { background: #f56c6c; color: #fff; font-size: 22rpx; padding: 4rpx 14rpx; border-radius: 20rpx; }

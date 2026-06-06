@@ -19,14 +19,18 @@ function request(url, method = 'GET', data = {}) {
             return
           }
           if (res.statusCode === 401) {
-            wx.showToast({ title: body.message || '请先登录', icon: 'none' })
+            wx.removeStorageSync('token')
+            wx.removeStorageSync('userId')
+            wx.showToast({ title: body.message || '请先登录', icon: 'none', duration: 2500 })
             reject(body)
             return
           }
           if (body.success) {
             resolve(body.data)
           } else {
-            wx.showToast({ title: body.message || '请求失败', icon: 'none' })
+            if (body.status !== 2002) {
+              wx.showToast({ title: body.message || '请求失败', icon: 'none' })
+            }
             reject(body)
           }
         } catch (err) {

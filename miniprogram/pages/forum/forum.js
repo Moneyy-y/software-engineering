@@ -1,5 +1,4 @@
 const { get, post } = require('../../utils/request')
-const { login } = require('../../utils/auth')
 const { uploadFile } = require('../../utils/upload')
 const { baseUrl } = require('../../utils/config')
 
@@ -48,26 +47,33 @@ Page({
     }
   },
   onShow() {
-    login().then(async () => {
-      if (this.data.activeMainTab === 'my') {
-        await this.loadMyPosts()
-      } else {
-        await this.load()
+    if (this.data.activeMainTab === 'my') {
+      if (!wx.getStorageSync('token')) {
+        wx.showToast({ title: '请先前往「我的」页登录', icon: 'none', duration: 2500 })
+        this.setData({ activeMainTab: 'forum' })
+        this.load()
+        return
       }
-      if (this._pendingResubmitId) {
-        const id = this._pendingResubmitId
-        this._pendingResubmitId = null
-        this.setData({ activeMainTab: 'my' })
-        await this.loadMyPosts()
-        await this.openResubmit(id)
-      }
-    })
+      this.loadMyPosts().then(() => {
+        if (this._pendingResubmitId) {
+          const id = this._pendingResubmitId
+          this._pendingResubmitId = null
+          this.openResubmit(id)
+        }
+      })
+    } else {
+      this.load()
+    }
   },
   switchMainTab(e) {
     const tab = e.currentTarget.dataset.tab
     this.setData({ activeMainTab: tab })
     if (tab === 'my') {
-      login().then(() => this.loadMyPosts())
+      if (!wx.getStorageSync('token')) {
+        wx.showToast({ title: '请先前往「我的」页登录', icon: 'none', duration: 2500 })
+        return
+      }
+      this.loadMyPosts()
     } else {
       this.load()
     }
@@ -194,8 +200,8 @@ Page({
   },
   async submitPublish() {
     if (!wx.getStorageSync('token')) {
-      wx.showToast({ title: '请先登录', icon: 'none' })
-      try { await login() } catch { return }
+      wx.showToast({ title: '请先前往「我的」页登录', icon: 'none', duration: 2500 })
+      return
     }
     const title = (this.data.publishTitle || '').trim()
     const content = (this.data.publishContent || '').trim()

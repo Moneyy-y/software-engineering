@@ -32,13 +32,32 @@ public class FeedbackService {
         if (!StringUtils.hasText(dto.getDescription()) || dto.getDescription().length() < 10) {
             throw new BusinessException(1001, "反馈描述至少10字");
         }
+        Long userId = UserContext.getUserId();
+        String type = dto.getType() != null ? dto.getType() : "other";
+        String description = dto.getDescription().trim();
+
+        Feedback latest = feedbackMapper.selectOne(new LambdaQueryWrapper<Feedback>()
+                .eq(Feedback::getUserId, userId)
+                .orderByDesc(Feedback::getCreateTime)
+                .last("LIMIT 1"));
+        if (latest != null && isSameFeedback(latest, type, description)
+                && !Boolean.TRUE.equals(dto.getConfirmDuplicate())) {
+            throw new BusinessException(2002, "你刚刚提交了一样的信息");
+        }
+
         Feedback fb = new Feedback();
-        fb.setUserId(UserContext.getUserId());
-        fb.setType(dto.getType() != null ? dto.getType() : "other");
-        fb.setDescription(dto.getDescription());
+        fb.setUserId(userId);
+        fb.setType(type);
+        fb.setDescription(description);
         fb.setImages(dto.getImages() != null ? JSON.toJSONString(dto.getImages()) : "[]");
         fb.setStatus("pending");
         feedbackMapper.insert(fb);
+    }
+
+    private boolean isSameFeedback(Feedback fb, String type, String description) {
+        String prevType = fb.getType() != null ? fb.getType() : "other";
+        String prevDesc = fb.getDescription() != null ? fb.getDescription().trim() : "";
+        return prevType.equals(type) && prevDesc.equals(description);
     }
 
     public PageResult<Map<String, Object>> list(String status, int page, int size) {
@@ -103,6 +122,7 @@ public class FeedbackService {
         m.put("status", fb.getStatus());
         m.put("reply", fb.getReply());
         m.put("createTime", fb.getCreateTime());
+        m.put("acceptTime", fb.getAcceptTime());
         m.put("resolveTime", fb.getResolveTime());
         return m;
     }

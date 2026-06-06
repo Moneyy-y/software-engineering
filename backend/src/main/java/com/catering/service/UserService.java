@@ -25,6 +25,7 @@ import com.catering.mapper.UserBehaviorMapper;
 import com.catering.mapper.UserFavoriteMapper;
 import com.catering.mapper.UserMapper;
 import com.catering.util.AesUtil;
+import com.catering.util.CaptchaStore;
 import com.catering.util.JwtUtil;
 import com.catering.vo.ReviewVO;
 import com.catering.vo.LoginVO;
@@ -54,13 +55,15 @@ public class UserService {
     private final AesUtil aesUtil;
     private final JwtUtil jwtUtil;
     private final StringRedisTemplate redisTemplate;
+    private final CaptchaStore captchaStore;
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     public UserService(UserMapper userMapper, UserFavoriteMapper favoriteMapper,
                        UserBehaviorMapper behaviorMapper, PostMapper postMapper,
                        CommentMapper commentMapper, FeedbackMapper feedbackMapper,
-                       DishMapper dishMapper, ReviewMapper reviewMapper, 
-                       AesUtil aesUtil, JwtUtil jwtUtil, StringRedisTemplate redisTemplate) {
+                       DishMapper dishMapper, ReviewMapper reviewMapper,
+                       AesUtil aesUtil, JwtUtil jwtUtil, StringRedisTemplate redisTemplate,
+                       CaptchaStore captchaStore) {
         this.userMapper = userMapper;
         this.favoriteMapper = favoriteMapper;
         this.behaviorMapper = behaviorMapper;
@@ -72,6 +75,7 @@ public class UserService {
         this.aesUtil = aesUtil;
         this.jwtUtil = jwtUtil;
         this.redisTemplate = redisTemplate;
+        this.captchaStore = captchaStore;
     }
 
     public LoginVO wechatLogin(LoginDTO dto) {
@@ -97,14 +101,14 @@ public class UserService {
         if (dto.getCaptchaKey() == null || dto.getCaptcha() == null) {
             throw new BusinessException(1007, "验证码不能为空");
         }
-        String storedCaptcha = redisTemplate.opsForValue().get("captcha:" + dto.getCaptchaKey());
+        String storedCaptcha = captchaStore.get(dto.getCaptchaKey());
         if (storedCaptcha == null) {
             throw new BusinessException(1008, "验证码已过期");
         }
         if (!storedCaptcha.equalsIgnoreCase(dto.getCaptcha())) {
             throw new BusinessException(1009, "验证码错误");
         }
-        redisTemplate.delete("captcha:" + dto.getCaptchaKey());
+        captchaStore.delete(dto.getCaptchaKey());
         
         User user = userMapper.selectOne(new LambdaQueryWrapper<User>()
                 .eq(User::getUsername, dto.getUsername()));

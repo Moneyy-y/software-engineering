@@ -1,5 +1,13 @@
 .toolbar { display: flex; justify-content: space-between; align-items: center; padding: 0 8rpx 16rpx; }
-.clear-btn { color: #f56c6c; font-size: 26rpx; }
+.clear-btn {
+  margin: 0;
+  padding: 0 20rpx;
+  line-height: 1.8;
+  color: #f56c6c;
+  background: #fef0f0;
+  border: 1rpx solid #fbc4c4;
+  font-size: 24rpx;
+}
 .item { display: flex; gap: 20rpx; }
 .cover { width: 120rpx; height: 120rpx; border-radius: 8rpx; background: #eee; flex-shrink: 0; }
 .name { font-weight: bold; display: block; margin-bottom: 8rpx; }

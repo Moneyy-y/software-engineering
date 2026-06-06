@@ -1,11 +1,22 @@
 const { post } = require('./request')
 
-function login() {
+function clearAuth() {
+  wx.removeStorageSync('token')
+  wx.removeStorageSync('userId')
+}
+
+function isLoggedIn() {
+  return !!wx.getStorageSync('token')
+}
+
+function login(options = {}) {
+  const force = options.force === true
   return new Promise((resolve, reject) => {
-    if (wx.getStorageSync('token')) {
+    if (!force && wx.getStorageSync('token')) {
       resolve(wx.getStorageSync('token'))
       return
     }
+    if (force) clearAuth()
     wx.login({
       success(res) {
         post('/api/user/login', { code: res.code || 'dev', nickname: '微信用户' })
@@ -21,4 +32,4 @@ function login() {
   })
 }
 
-module.exports = { login }
+module.exports = { login, clearAuth, isLoggedIn }

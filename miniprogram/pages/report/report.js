@@ -1,5 +1,4 @@
 const { post } = require('../../utils/request')
-const { login } = require('../../utils/auth')
 
 const TYPE_LABEL = { post: '帖子', review: '评价', comment: '评论' }
 
@@ -20,7 +19,11 @@ Page({
       setTimeout(() => wx.navigateBack(), 1500)
       return
     }
-    login().catch(() => {})
+    if (!wx.getStorageSync('token')) {
+      wx.showToast({ title: '请先前往「我的」页登录', icon: 'none', duration: 2500 })
+      setTimeout(() => wx.navigateBack(), 1500)
+      return
+    }
     this.setData({
       targetType,
       targetId,
@@ -34,6 +37,10 @@ Page({
     this.setData({ description: e.detail.value })
   },
   async submit() {
+    if (!wx.getStorageSync('token')) {
+      wx.showToast({ title: '请先前往「我的」页登录', icon: 'none', duration: 2500 })
+      return
+    }
     const desc = (this.data.description || '').trim()
     if (desc.length < 5) {
       wx.showToast({ title: '请至少填写5字说明', icon: 'none' })

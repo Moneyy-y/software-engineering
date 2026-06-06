@@ -1,5 +1,4 @@
 const { post } = require('../../utils/request')
-const { login } = require('../../utils/auth')
 const { uploadFile } = require('../../utils/upload')
 const { baseUrl } = require('../../utils/config')
 
@@ -14,7 +13,6 @@ Page({
       dishId: options.dishId,
       isResubmit: options.resubmit === '1'
     })
-    login()
     this.loadDraft(options)
   },
   loadDraft(options) {
@@ -102,6 +100,10 @@ Page({
     })
   },
   async submit() {
+    if (!wx.getStorageSync('token')) {
+      wx.showToast({ title: '请先前往「我的」页登录', icon: 'none', duration: 2500 })
+      return
+    }
     if (this.data.content.length < 10) {
       wx.showToast({ title: '至少10字', icon: 'none' })
       return
