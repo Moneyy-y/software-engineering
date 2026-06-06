@@ -32,8 +32,8 @@
     "ignoreUploadUnusedFiles": false
   },
   "compileType": "miniprogram",
-  "libVersion": "3.16.0",
-  "appid": "wxeacab0e80e47fc34",
+  "libVersion": "3.7.12",
+  "appid": "wxfb09128014621b16",
   "projectname": "catering-miniprogram",
   "condition": {},
   "simulatorPluginLibVersion": {},

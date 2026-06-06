@@ -23,16 +23,20 @@ request.interceptors.response.use(
   },
   err => {
     const status = err.response?.status
-    const msg = err.response?.data?.message
+    const data = err.response?.data
+    const msg = data?.message || data?.msg
     if (status === 401) {
       localStorage.removeItem('token')
       localStorage.removeItem('nickname')
       ElMessage.error(msg || '登录已失效，请重新登录')
       router.push('/login')
+    } else if (status === 404) {
+      const url = err.config?.url || ''
+      ElMessage.error(msg || `请求的资源不存在: ${url}`)
     } else {
       ElMessage.error(msg || err.message || '网络错误')
     }
-    return Promise.reject(err)
+    return Promise.reject(data || err)
   }
 )
 

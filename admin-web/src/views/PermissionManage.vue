@@ -33,7 +33,10 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import request from '../utils/request'
+import { useUserStore } from '../stores/user'
 import { ElMessage } from 'element-plus'
+
+const userStore = useUserStore()
 
 const activeTab = ref('menus')
 const allMenus = ref([])
@@ -51,6 +54,9 @@ async function loadRoleMenus() {
 
 async function saveRoleMenus() {
   await request.post(`/api/permission/role/menus/${selectedRole.value}`, checkedMenus.value)
+  if (selectedRole.value === userStore.role) {
+    await userStore.fetchMenus()
+  }
   ElMessage.success('角色菜单分配已保存')
 }
 </script>

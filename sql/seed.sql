@@ -73,7 +73,8 @@ INSERT INTO `feedback` (`user_id`, `type`, `description`, `status`) VALUES
 
 -- 敏感词
 INSERT INTO `sensitive_word` (`content`, `category`) VALUES
-('广告', 'spam'), ('刷单', 'spam'), ('违法', 'illegal');
+('广告', 'spam'), ('刷单', 'spam'), ('违法', 'illegal'),
+('微信', 'spam'), ('加微信', 'spam'), ('优惠券', 'spam'), ('扫码', 'spam'), ('兼职', 'spam');
 
 -- 论坛帖子
 INSERT INTO `post` (`user_id`, `title`, `content`, `zone`, `audit_status`, `like_count`) VALUES

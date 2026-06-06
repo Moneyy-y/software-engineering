@@ -29,37 +29,60 @@ public class JwtAuthInterceptor implements HandlerInterceptor {
         if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
             return true;
         }
+        boolean optionalAuth = isOptionalAuthPath(request.getMethod(), request.getRequestURI());
         String auth = request.getHeader("Authorization");
         if (auth == null || !auth.startsWith("Bearer ")) {
+            if (optionalAuth) {
+                return true;
+            }
             writeUnauthorized(response, "未登录");
             return false;
         }
         String token = auth.substring(7);
         try {
             if (isTokenBlacklisted(token)) {
+                if (optionalAuth) {
+                    return true;
+                }
                 writeUnauthorized(response, "Token已失效");
                 return false;
             }
             Long userId = jwtUtil.getUserId(token);
             String role = jwtUtil.getRole(token);
-            
-            // 检查用户状态
+
             User user = userMapper.selectById(userId);
             if (user == null || user.getStatus() == null || user.getStatus() == 0) {
+                if (optionalAuth) {
+                    return true;
+                }
                 writeUnauthorized(response, "用户已被停用");
                 return false;
             }
-            
+
             request.setAttribute("userId", userId);
             request.setAttribute("role", role);
             return true;
         } catch (ExpiredJwtException e) {
+            if (optionalAuth) {
+                return true;
+            }
             writeUnauthorized(response, "Token已过期");
             return false;
         } catch (Exception e) {
+            if (optionalAuth) {
+                return true;
+            }
             writeUnauthorized(response, "认证失败");
             return false;
         }
+    }
+
+    /** 允许匿名访问，但若 token 有效仍会识别登录用户 */
+    private boolean isOptionalAuthPath(String method, String path) {
+        if (!"GET".equalsIgnoreCase(method) || path == null) {
+            return false;
+        }
+        return path.matches("/api/post/\\d+") || path.matches("/api/post/\\d+/comments");
     }
 
     /** Redis 未启动时跳过黑名单检查，避免开发环境全部接口 401 */

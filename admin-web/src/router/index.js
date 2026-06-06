@@ -25,26 +25,49 @@ const routes = [
 
 const router = createRouter({ history: createWebHistory(), routes })
 
+function getAllowedPaths() {
+  const menus = JSON.parse(localStorage.getItem('menus') || '[]')
+  return menus.map(m => m.path)
+}
+
+function getDefaultPath() {
+  const allowedPaths = getAllowedPaths()
+  return allowedPaths.length > 0 ? allowedPaths[0] : '/dashboard'
+}
+
 router.beforeEach((to, from, next) => {
   if (to.path !== '/login' && !localStorage.getItem('token')) {
     next('/login')
     return
   }
   if (to.path === '/login' && localStorage.getItem('token')) {
-    next('/dashboard')
+    next(getDefaultPath())
     return
   }
-  const menus = JSON.parse(localStorage.getItem('menus') || '[]')
-  const allowedPaths = menus.map(m => m.path)
-  if (to.path !== '/' && to.path !== '/dashboard' && to.path !== '/login' && allowedPaths.length > 0) {
-    if (!allowedPaths.includes(to.path)) {
-      if (from.path && from.path !== '/login') {
-        next(false)
-      } else {
-        next('/dashboard')
-      }
-      return
+  if (to.path === '/login') {
+    next()
+    return
+  }
+
+  const allowedPaths = getAllowedPaths()
+  const targetPath = to.path === '/' ? getDefaultPath() : to.path
+
+  if (allowedPaths.length === 0) {
+    if (targetPath === '/dashboard') {
+      next()
+    } else {
+      next('/dashboard')
     }
+    return
+  }
+
+  if (!allowedPaths.includes(targetPath)) {
+    if (from.path && from.path !== '/login' && from.path !== targetPath) {
+      next(false)
+    } else {
+      next(getDefaultPath())
+    }
+    return
   }
   next()
 })

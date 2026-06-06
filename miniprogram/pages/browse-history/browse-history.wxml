@@ -1,7 +1,7 @@
 <view class="container">
   <view class="toolbar" wx:if="{{list.length}}">
     <text class="text-muted">共 {{list.length}} 条</text>
-    <text class="clear-btn" bindtap="clearAll">清空</text>
+    <button class="clear-btn" size="mini" bindtap="clearAll">清空浏览记录</button>
   </view>
   <view class="card item" wx:for="{{list}}" wx:key="browseId" bindtap="goDetail" data-id="{{item.dishId}}">
     <image class="cover" src="{{item.coverImage}}" mode="aspectFill" />

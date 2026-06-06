@@ -7,6 +7,7 @@ function request(url, method = 'GET', data = {}) {
       url: baseUrl + url,
       method,
       data,
+      timeout: 15000,
       header: {
         'Content-Type': method === 'GET' ? 'application/json' : 'application/json',
         'Authorization': token ? `Bearer ${token}` : ''
@@ -19,14 +20,18 @@ function request(url, method = 'GET', data = {}) {
             return
           }
           if (res.statusCode === 401) {
-            wx.showToast({ title: body.message || '请先登录', icon: 'none' })
+            wx.removeStorageSync('token')
+            wx.removeStorageSync('userId')
+            wx.showToast({ title: body.message || '请先登录', icon: 'none', duration: 2500 })
             reject(body)
             return
           }
           if (body.success) {
             resolve(body.data)
           } else {
-            wx.showToast({ title: body.message || '请求失败', icon: 'none' })
+            if (body.status !== 2002) {
+              wx.showToast({ title: body.message || '请求失败', icon: 'none' })
+            }
             reject(body)
           }
         } catch (err) {
@@ -34,8 +39,12 @@ function request(url, method = 'GET', data = {}) {
         }
       },
       fail(err) {
-        wx.showToast({ title: '网络错误', icon: 'none' })
-        reject(err)
+        const errMsg = (err && err.errMsg) || '网络错误'
+        const tip = errMsg.includes('timeout')
+          ? '请求超时，请确认 baseUrl 使用 127.0.0.1 且后端已启动'
+          : '网络错误'
+        wx.showToast({ title: tip, icon: 'none', duration: 3000 })
+        reject({ message: errMsg, errMsg })
       }
     })
   })

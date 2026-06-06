@@ -1,3 +1,8 @@
+/**
+ * 小程序 API 地址
+ * 开发者工具请使用 127.0.0.1，避免 localhost 在模拟器中请求超时
+ * 真机调试请改为电脑局域网 IP，如 http://192.168.1.100:8080
+ */
 module.exports = {
-  baseUrl: 'http://localhost:8080'
+  baseUrl: 'http://127.0.0.1:8080'
 }

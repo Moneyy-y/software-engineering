@@ -184,7 +184,7 @@ public class PostService {
         List<Post> list = postMapper.selectList(wrapper.last("LIMIT " + (page - 1) * size + "," + size));
         List<Map<String, Object>> records = list.stream().map(p -> {
             Map<String, Object> m = toMap(p);
-            m.put("sensitiveHit", sensitiveWordService.findHit(p.getTitle() + p.getContent()));
+            m.put("sensitiveHit", sensitiveWordService.formatHits(p.getTitle() + p.getContent()));
             return m;
         }).collect(Collectors.toList());
         return new PageResult<>(records, total, page, size);

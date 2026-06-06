@@ -46,6 +46,7 @@ public class WebConfig implements WebMvcConfigurer {
                         "/api/admin/refresh",
                         "/api/dish/list",
                         "/api/dish/**",
+                        "/api/review/dish/**",
                         "/api/shop/list",
                         "/api/recommend/redblack",
                         "/api/post/list",

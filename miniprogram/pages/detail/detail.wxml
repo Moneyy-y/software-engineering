@@ -1,9 +1,19 @@
-<view class="container" wx:if="{{dish}}">
-  <swiper class="banner" indicator-dots>
+<view class="state-box" wx:if="{{loading}}">
+  <text class="text-muted">加载中...</text>
+</view>
+<view class="state-box" wx:elif="{{loadError}}">
+  <text class="error-text">{{loadError}}</text>
+  <button size="mini" type="primary" bindtap="retryLoad">重试</button>
+</view>
+<view class="container" wx:elif="{{dish}}">
+  <swiper class="banner" indicator-dots wx:if="{{dish.images.length}}">
     <swiper-item wx:for="{{dish.images}}" wx:key="*this">
       <image src="{{item}}" mode="aspectFill" class="banner-img" />
     </swiper-item>
   </swiper>
+  <view class="banner banner-placeholder" wx:else>
+    <text class="text-muted">暂无图片</text>
+  </view>
   <view class="card">
     <text class="title">{{dish.name}}</text>
     <view class="row">

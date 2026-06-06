@@ -1,5 +1,21 @@
 .banner { height: 400rpx; }
 .banner-img { width: 100%; height: 400rpx; }
+.banner-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f2f3f5;
+}
+.state-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24rpx;
+  min-height: 60vh;
+  padding: 40rpx;
+}
+.error-text { color: #f56c6c; text-align: center; }
 .title { font-size: 36rpx; font-weight: bold; }
 .row { display: flex; gap: 24rpx; margin: 16rpx 0; align-items: center; }
 .price { color: #f56c6c; font-size: 32rpx; font-weight: bold; }
