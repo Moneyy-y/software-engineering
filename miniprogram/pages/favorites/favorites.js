@@ -1,11 +1,10 @@
 const { get, post } = require('../../utils/request')
-const { login } = require('../../utils/auth')
 const { baseUrl } = require('../../utils/config')
 
 Page({
   data: { list: [] },
   onShow() {
-    login().then(() => this.load())
+    this.load()
   },
   async load() {
     const res = await get('/api/user/favorite/list', { page: 1, size: 50 })
@@ -21,6 +20,10 @@ Page({
     wx.navigateTo({ url: `/pages/detail/detail?id=${e.currentTarget.dataset.id}` })
   },
   async remove(e) {
+    if (!wx.getStorageSync('token')) {
+      wx.showToast({ title: '请先前往「我的」页登录', icon: 'none', duration: 2500 })
+      return
+    }
     const { id, index } = e.currentTarget.dataset
     const item = this.data.list[index]
     wx.showModal({

@@ -1,5 +1,4 @@
 const { post, get } = require('../../utils/request')
-const { login } = require('../../utils/auth')
 
 const TYPE_OPTIONS = [
   { value: 'hygiene', label: '卫生' },
@@ -31,7 +30,7 @@ Page({
     loading: true
   },
   onShow() {
-    login().then(() => this.loadFeedbacks()).catch(() => {})
+    this.loadFeedbacks()
   },
   onType(e) {
     const idx = Number(e.detail.value)
@@ -43,11 +42,45 @@ Page({
     })
   },
   onDesc(e) { this.setData({ description: e.detail.value }) },
+  isDuplicateSubmission(type, description) {
+    const desc = (description || '').trim()
+    if (this._lastSubmit
+        && this._lastSubmit.type === type
+        && this._lastSubmit.description === desc) {
+      return true
+    }
+    const latest = (this.data.feedbacks || [])[0]
+    if (latest
+        && latest.type === type
+        && (latest.description || '').trim() === desc) {
+      return true
+    }
+    return false
+  },
+  confirmDuplicateSubmit() {
+    return new Promise((resolve) => {
+      wx.showModal({
+        title: '重复提交',
+        content: '你刚刚提交了一样的信息，是否还要提交？',
+        confirmText: '继续提交',
+        cancelText: '取消',
+        success: resolve
+      })
+    })
+  },
   async loadFeedbacks() {
     this.setData({ loading: true })
     try {
       const data = await get('/api/feedback/my') || []
-      const feedbacks = Array.isArray(data) ? data : []
+      const feedbacks = (Array.isArray(data) ? data : []).map((item) => ({
+        ...item,
+        typeLabel: this.getTypeLabel(item.type),
+        statusLabel: this.getStatusLabel(item.status),
+        statusColor: this.getStatusColor(item.status),
+        createTimeText: this.formatTime(item.createTime),
+        acceptTimeText: this.formatTime(item.acceptTime),
+        resolveTimeText: this.formatTime(item.resolveTime)
+      }))
       this.setData({ feedbacks })
     } catch (e) {
       this.setData({ feedbacks: [] })
@@ -55,14 +88,41 @@ Page({
       this.setData({ loading: false })
     }
   },
-  async submit() {
-    if (this.data.description.length < 10) {
-      wx.showToast({ title: '至少10字', icon: 'none' }); return
+  onSubmit() {
+    this.doSubmit(false)
+  },
+  async doSubmit(confirmed) {
+    const force = confirmed === true
+    if (!wx.getStorageSync('token')) {
+      wx.showToast({ title: '请先前往「我的」页登录', icon: 'none', duration: 2500 })
+      return
     }
-    await post('/api/feedback/submit', { type: this.data.type, description: this.data.description })
-    wx.showToast({ title: '提交成功' })
-    this.setData({ description: '' })
-    this.loadFeedbacks()
+    const description = (this.data.description || '').trim()
+    if (description.length < 10) {
+      wx.showToast({ title: '至少10字', icon: 'none' })
+      return
+    }
+    if (!force && this.isDuplicateSubmission(this.data.type, description)) {
+      const res = await this.confirmDuplicateSubmit()
+      if (!res.confirm) return
+      return this.doSubmit(true)
+    }
+    try {
+      await post('/api/feedback/submit', {
+        type: this.data.type,
+        description,
+        confirmDuplicate: force
+      })
+      this._lastSubmit = { type: this.data.type, description }
+      wx.showToast({ title: '提交成功' })
+      this.setData({ description: '' })
+      this.loadFeedbacks()
+    } catch (e) {
+      if (e && e.status === 2002 && !force) {
+        const res = await this.confirmDuplicateSubmit()
+        if (res.confirm) return this.doSubmit(true)
+      }
+    }
   },
   getStatusLabel(status) {
     return STATUS_LABEL[status] || status

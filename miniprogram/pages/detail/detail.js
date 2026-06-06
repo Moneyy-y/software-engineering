@@ -1,5 +1,4 @@
 const { get, post } = require('../../utils/request')
-const { login } = require('../../utils/auth')
 const { baseUrl } = require('../../utils/config')
 
 Page({
@@ -10,10 +9,8 @@ Page({
   onLoad(options) {
     this.setData({ id: options.id })
     this.getLocation()
-    login().then(() => {
-      this.loadDetail()
-      this.recordBrowse()
-    })
+    this.loadDetail()
+    this.recordBrowse()
   },
   getLocation() {
     wx.getLocation({
@@ -94,6 +91,10 @@ Page({
     }
   },
   async toggleFavorite() {
+    if (!wx.getStorageSync('token')) {
+      wx.showToast({ title: '请先前往「我的」页登录', icon: 'none', duration: 2500 })
+      return
+    }
     const { dish } = this.data
     if (dish.favorited) {
       await post(`/api/user/favorite/remove?dishId=${dish.dishId}`)
@@ -110,6 +111,10 @@ Page({
   goReport(e) {
     const id = e.currentTarget.dataset.id
     if (!id) return
+    if (!wx.getStorageSync('token')) {
+      wx.showToast({ title: '请先前往「我的」页登录', icon: 'none', duration: 2500 })
+      return
+    }
     wx.navigateTo({
       url: `/pages/report/report?targetType=review&targetId=${id}`
     })

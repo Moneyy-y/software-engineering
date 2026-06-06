@@ -35,4 +35,6 @@ textarea { width: 100%; height: 240rpx; background: #f5f7fa; padding: 20rpx; bor
 
 .feedback-time { font-size: 24rpx; color: #999; }
 
-.feedback-resolve-time { font-size: 24rpx; color: #999; margin-top: 8rpx; }
+.feedback-accept-time { font-size: 24rpx; color: #1890ff; margin-top: 8rpx; }
+
+.feedback-resolve-time { font-size: 24rpx; color: #52c41a; margin-top: 8rpx; }
