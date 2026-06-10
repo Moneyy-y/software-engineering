@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -59,7 +60,7 @@ public class SensitiveWordService {
      */
     public List<String> findAllHits(String text) {
         if (text == null || text.trim().isEmpty()) {
-            return List.of();
+            return Collections.emptyList();
         }
         Set<String> hits = new LinkedHashSet<>(dfa.findAll(text));
         String lower = text.toLowerCase();
