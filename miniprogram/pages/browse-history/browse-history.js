@@ -1,5 +1,5 @@
 const { get, del } = require('../../utils/request')
-const { baseUrl } = require('../../utils/config')
+const { resolveImageUrl } = require('../../utils/image')
 
 Page({
   data: { list: [] },
@@ -13,9 +13,7 @@ Page({
     const list = (await get('/api/user/browse/history')) || []
     const formatted = list.map((item) => ({
       ...item,
-      coverImage: item.coverImage
-        ? (item.coverImage.startsWith('http') ? item.coverImage : baseUrl + item.coverImage)
-        : '/assets/placeholder.png'
+      coverImage: resolveImageUrl(item.coverImage)
     }))
     this.setData({ list: formatted })
   },

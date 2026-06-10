@@ -1,7 +1,12 @@
 package com.catering.util;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * DFA 敏感词过滤
@@ -38,5 +43,26 @@ public class DfaFilter {
 
     public boolean contains(String text) {
         return findFirst(text) != null;
+    }
+
+    /**
+     * 找出文本中所有命中的敏感词（去重，按出现顺序）
+     */
+    public List<String> findAll(String text) {
+        if (text == null || text.isEmpty()) return Collections.emptyList();
+        Set<String> hits = new LinkedHashSet<>();
+        for (int i = 0; i < text.length(); i++) {
+            Map<Character, Object> node = root;
+            int j = i;
+            while (j < text.length()) {
+                node = (Map<Character, Object>) node.get(text.charAt(j));
+                if (node == null) break;
+                if (node.containsKey('\0')) {
+                    hits.add(text.substring(i, j + 1));
+                }
+                j++;
+            }
+        }
+        return new ArrayList<>(hits);
     }
 }

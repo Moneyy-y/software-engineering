@@ -59,7 +59,7 @@ public class AuditService {
             vo.setContent(r.getContent());
             vo.setImages(r.getImages());
             vo.setAuditStatus(r.getAuditStatus());
-            vo.setSensitiveHit(sensitiveWordService.findHit(r.getContent()));
+            vo.setSensitiveHit(sensitiveWordService.formatHits(r.getContent()));
             vo.setCreateTime(r.getCreateTime());
             vos.add(vo);
         }

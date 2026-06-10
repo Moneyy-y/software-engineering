@@ -28,18 +28,16 @@ public class ReviewService {
     private final DishMapper dishMapper;
     private final StallMapper stallMapper;
     private final UserBehaviorMapper behaviorMapper;
-    private final SensitiveWordService sensitiveWordService;
     private final AesUtil aesUtil;
     private final StringRedisTemplate redisTemplate;
 
     public ReviewService(ReviewMapper reviewMapper, DishMapper dishMapper, StallMapper stallMapper,
-                         UserBehaviorMapper behaviorMapper, SensitiveWordService sensitiveWordService,
+                         UserBehaviorMapper behaviorMapper,
                          AesUtil aesUtil, StringRedisTemplate redisTemplate) {
         this.reviewMapper = reviewMapper;
         this.dishMapper = dishMapper;
         this.stallMapper = stallMapper;
         this.behaviorMapper = behaviorMapper;
-        this.sensitiveWordService = sensitiveWordService;
         this.aesUtil = aesUtil;
         this.redisTemplate = redisTemplate;
     }
@@ -52,9 +50,6 @@ public class ReviewService {
         if (!StringUtils.hasText(dto.getContent()) || dto.getContent().length() < 10) {
             throw new BusinessException(1001, "评价内容至少10字");
         }
-        String hit = sensitiveWordService.findHit(dto.getContent());
-        if (hit != null) throw new BusinessException(2001, "评价内容包含敏感词: " + hit);
-
         String encUserId = aesUtil.encryptUserId(userId);
         String limitKeyEnc = "review:limit:" + encUserId + ":" + dto.getDishId();
         String limitKeyLegacy = "review:limit:" + userId + ":" + dto.getDishId();

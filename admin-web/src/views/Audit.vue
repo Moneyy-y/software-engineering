@@ -31,9 +31,18 @@
           <span v-else style="color:#999">无</span>
         </template>
       </el-table-column>
-      <el-table-column prop="sensitiveHit" label="敏感词" width="100">
+      <el-table-column label="敏感词" width="160">
         <template #default="{ row }">
-          <el-tag v-if="row.sensitiveHit" type="danger">{{ row.sensitiveHit }}</el-tag>
+          <template v-if="parseSensitiveHits(row.sensitiveHit).length">
+            <el-tag
+              v-for="word in parseSensitiveHits(row.sensitiveHit)"
+              :key="word"
+              type="danger"
+              size="small"
+              style="margin:2px"
+            >{{ word }}</el-tag>
+          </template>
+          <span v-else style="color:#999">无</span>
         </template>
       </el-table-column>
       <el-table-column prop="createTime" label="时间" width="180" />
@@ -96,6 +105,11 @@ async function confirmReject() {
   rejectVisible.value = false
   ElMessage.success('已拒绝')
   load()
+}
+
+function parseSensitiveHits(hit) {
+  if (!hit) return []
+  return hit.split(/[,，]/).map(s => s.trim()).filter(Boolean)
 }
 
 function parseImages(images) {

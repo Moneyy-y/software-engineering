@@ -49,7 +49,7 @@ const roleLabel = computed(() => {
 })
 
 onMounted(() => {
-  if (userStore.token && userStore.menus.length === 0) {
+  if (userStore.token) {
     userStore.fetchMenus()
   }
 })

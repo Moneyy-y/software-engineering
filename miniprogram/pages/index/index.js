@@ -1,6 +1,6 @@
 const { get } = require('../../utils/request')
 const { splitWaterfall } = require('../../utils/waterfall')
-const { baseUrl } = require('../../utils/config')
+const { resolveImageUrl } = require('../../utils/image')
 const { gatePageShow, markAgreed } = require('../../utils/protocol')
 
 const CATEGORIES = ['全部菜系', '特色小炒', '面食粥粉', '快餐便当', '奶茶饮品', '小吃炸串']
@@ -53,6 +53,7 @@ Page({
     this.loadShops()
   },
   onShow() {
+    this.loadShops()
     gatePageShow(this, this.initPage)
   },
   onProtocolAgree() {
@@ -147,9 +148,7 @@ Page({
     }
     dishes = dishes.map((d) => ({
       ...d,
-      coverImage: d.coverImage
-        ? (d.coverImage.startsWith('http') ? d.coverImage : baseUrl + d.coverImage)
-        : '/assets/placeholder.png'
+      coverImage: resolveImageUrl(d.coverImage)
     }))
     const { leftColumn, rightColumn } = splitWaterfall(dishes)
     this.setData({ leftColumn, rightColumn })

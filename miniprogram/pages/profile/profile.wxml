@@ -2,7 +2,7 @@
 
 <view class="container">
   <view class="card user-card" bindtap="handleLogin">
-    <image class="avatar" src="{{user.avatar || '/assets/placeholder.png'}}" />
+    <image class="avatar" src="{{user.avatar || 'https://thirdwx.qlogo.cn/mmopen/vi_32/default.png'}}" />
     <view class="user-meta">
       <text class="nickname">{{user.nickname || '未登录'}}</text>
       <text class="login-hint" wx:if="{{!loggedIn}}">点击头像或昵称登录</text>

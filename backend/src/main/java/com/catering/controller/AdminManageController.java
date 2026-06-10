@@ -77,6 +77,18 @@ public class AdminManageController {
         return Result.ok(dishService.saveShop(shop));
     }
 
+    @PostMapping("/shop/delete")
+    @AuditLog("删除食堂")
+    public Result<Void> deleteShop(@RequestBody(required = false) Map<String, Long> body,
+                                   @RequestParam(required = false) Long shopId) {
+        Long id = resolveId(shopId, body, "shopId");
+        if (id == null) {
+            return Result.fail(1001, "shopId不能为空");
+        }
+        dishService.deleteShop(id);
+        return Result.ok();
+    }
+
     @GetMapping("/stall/list")
     public Result<List<Stall>> listStalls(@RequestParam Long shopId) {
         return Result.ok(dishService.listStalls(shopId));
@@ -86,6 +98,28 @@ public class AdminManageController {
     @AuditLog("保存档口信息")
     public Result<Stall> saveStall(@RequestBody Stall stall) {
         return Result.ok(dishService.saveStall(stall));
+    }
+
+    @PostMapping("/stall/delete")
+    @AuditLog("删除档口")
+    public Result<Void> deleteStall(@RequestBody(required = false) Map<String, Long> body,
+                                    @RequestParam(required = false) Long stallId) {
+        Long id = resolveId(stallId, body, "stallId");
+        if (id == null) {
+            return Result.fail(1001, "stallId不能为空");
+        }
+        dishService.deleteStall(id);
+        return Result.ok();
+    }
+
+    private Long resolveId(Long paramId, Map<String, Long> body, String key) {
+        if (paramId != null) {
+            return paramId;
+        }
+        if (body == null) {
+            return null;
+        }
+        return body.get(key);
     }
 
     @GetMapping({"/post/pending", "/post/list"})
