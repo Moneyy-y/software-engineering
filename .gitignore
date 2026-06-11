@@ -8,3 +8,12 @@ uploads/
 .env
 *.log
 software-engineering/
+.factorypath
+__pycache__/
+*.pyc
+~$*
+*.7z
+docs/
+scripts/
+实验8/
+backend/src/main/resources/application-dev.yml
