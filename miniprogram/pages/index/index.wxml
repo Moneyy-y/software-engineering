@@ -48,8 +48,8 @@
 
 <view class="waterfall">
   <view class="column">
-    <view class="dish-card" wx:for="{{leftColumn}}" wx:key="dishId" bindtap="goDetail" data-id="{{item.dishId}}">
-      <image class="cover" src="{{item.coverImage}}" mode="widthFix" />
+    <view class="dish-card" wx:for="{{leftColumn}}" wx:for-index="index" wx:key="dishId" bindtap="goDetail" data-id="{{item.dishId}}">
+      <image class="cover" src="{{item.coverImage}}" mode="widthFix" binderror="onCoverImageError" data-column="left" data-index="{{index}}" />
       <view class="info">
         <text class="name">{{item.name}}</text>
         <view class="meta">
@@ -62,8 +62,8 @@
     </view>
   </view>
   <view class="column">
-    <view class="dish-card" wx:for="{{rightColumn}}" wx:key="dishId" bindtap="goDetail" data-id="{{item.dishId}}">
-      <image class="cover" src="{{item.coverImage}}" mode="widthFix" />
+    <view class="dish-card" wx:for="{{rightColumn}}" wx:for-index="index" wx:key="dishId" bindtap="goDetail" data-id="{{item.dishId}}">
+      <image class="cover" src="{{item.coverImage}}" mode="widthFix" binderror="onCoverImageError" data-column="right" data-index="{{index}}" />
       <view class="info">
         <text class="name">{{item.name}}</text>
         <view class="meta">

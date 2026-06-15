@@ -1,8 +1,8 @@
 <protocol-modal show="{{showProtocol}}" bind:agree="onProtocolAgree" bind:reject="onProtocolReject" />
 
 <view class="container">
-  <view class="dish-card card" wx:for="{{list}}" wx:key="dishId" bindtap="goDetail" data-id="{{item.dishId}}">
-    <image class="cover" src="{{item.coverImage}}" mode="aspectFill" />
+  <view class="dish-card card" wx:for="{{list}}" wx:for-index="index" wx:key="dishId" bindtap="goDetail" data-id="{{item.dishId}}">
+    <image class="cover" src="{{item.coverImage}}" mode="aspectFill" binderror="onCoverImageError" data-index="{{index}}" />
     <view class="info">
       <text class="name">{{item.name}}</text>
       <text class="score">★ {{item.avgScore}} · ¥{{item.price}}</text>

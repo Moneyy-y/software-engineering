@@ -1,6 +1,6 @@
 const { get } = require('../../utils/request')
 const { splitWaterfall } = require('../../utils/waterfall')
-const { resolveImageUrl } = require('../../utils/image')
+const { resolveImageUrl, PLACEHOLDER } = require('../../utils/image')
 const { gatePageShow, markAgreed } = require('../../utils/protocol')
 
 const CATEGORIES = ['全部菜系', '特色小炒', '面食粥粉', '快餐便当', '奶茶饮品', '小吃炸串']
@@ -155,5 +155,14 @@ Page({
   },
   goDetail(e) {
     wx.navigateTo({ url: `/pages/detail/detail?id=${e.currentTarget.dataset.id}` })
+  },
+  onCoverImageError(e) {
+    const { column, index } = e.currentTarget.dataset
+    const key = column === 'left' ? 'leftColumn' : 'rightColumn'
+    const list = [...this.data[key]]
+    if (list[index] && list[index].coverImage !== PLACEHOLDER) {
+      list[index] = { ...list[index], coverImage: PLACEHOLDER }
+      this.setData({ [key]: list })
+    }
   }
 })

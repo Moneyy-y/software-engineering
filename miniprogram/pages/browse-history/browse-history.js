@@ -1,5 +1,5 @@
 const { get, del } = require('../../utils/request')
-const { resolveImageUrl } = require('../../utils/image')
+const { resolveImageUrl, PLACEHOLDER } = require('../../utils/image')
 
 Page({
   data: { list: [] },
@@ -19,6 +19,14 @@ Page({
   },
   goDetail(e) {
     wx.navigateTo({ url: `/pages/detail/detail?id=${e.currentTarget.dataset.id}` })
+  },
+  onCoverImageError(e) {
+    const index = e.currentTarget.dataset.index
+    const list = [...this.data.list]
+    if (list[index] && list[index].coverImage !== PLACEHOLDER) {
+      list[index] = { ...list[index], coverImage: PLACEHOLDER }
+      this.setData({ list })
+    }
   },
   clearAll() {
     if (!this.data.list.length) return

@@ -1,5 +1,5 @@
 const { get, post } = require('../../utils/request')
-const { baseUrl } = require('../../utils/config')
+const { resolveImageUrl, PLACEHOLDER } = require('../../utils/image')
 
 Page({
   data: { list: [] },
@@ -8,16 +8,22 @@ Page({
   },
   async load() {
     const res = await get('/api/user/favorite/list', { page: 1, size: 50 })
-    const list = (res.records || []).map(item => {
-      if (item.coverImage && !item.coverImage.startsWith('http')) {
-        item.coverImage = baseUrl + item.coverImage
-      }
-      return item
-    })
+    const list = (res.records || []).map((item) => ({
+      ...item,
+      coverImage: resolveImageUrl(item.coverImage)
+    }))
     this.setData({ list })
   },
   goDetail(e) {
     wx.navigateTo({ url: `/pages/detail/detail?id=${e.currentTarget.dataset.id}` })
+  },
+  onCoverImageError(e) {
+    const index = e.currentTarget.dataset.index
+    const list = [...this.data.list]
+    if (list[index] && list[index].coverImage !== PLACEHOLDER) {
+      list[index] = { ...list[index], coverImage: PLACEHOLDER }
+      this.setData({ list })
+    }
   },
   async remove(e) {
     if (!wx.getStorageSync('token')) {
